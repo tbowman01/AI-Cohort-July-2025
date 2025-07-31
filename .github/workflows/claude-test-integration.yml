@@ -1,0 +1,96 @@
+name: Claude Integration Test
+
+on:
+  workflow_dispatch:
+    inputs:
+      test_type:
+        description: "Type of integration test to run"
+        required: true
+        type: choice
+        options:
+          - api-key-validation
+          - code-review-test
+          - issue-analysis-test
+        default: "api-key-validation"
+
+jobs:
+  test-claude-integration:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+      issues: write
+      id-token: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: API Key Validation Test
+        if: github.event.inputs.test_type == 'api-key-validation'
+        uses: anthropics/claude-code-action@beta
+        with:
+          mode: agent
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          timeout_minutes: "5"
+          override_prompt: |
+            This is a simple integration test for the Claude GitHub App.
+            
+            Please respond with:
+            1. Confirmation that the API key is working
+            2. Current timestamp
+            3. Repository name: ${{ github.repository }}
+            4. A brief assessment of the repository structure visible to you
+            
+            This test validates that the Claude integration is properly configured.
+
+      - name: Code Review Test
+        if: github.event.inputs.test_type == 'code-review-test'
+        uses: anthropics/claude-code-action@beta
+        with:
+          mode: agent
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          timeout_minutes: "8"
+          override_prompt: |
+            Perform a sample code review test for AutoDevHub integration.
+            
+            Please analyze the repository structure and provide:
+            1. Overview of the codebase organization
+            2. Identification of main technologies (FastAPI, React, etc.)
+            3. Assessment of current development setup
+            4. Suggestions for code quality improvements
+            5. Evaluation of existing GitHub workflows
+            
+            Focus on AutoDevHub-specific patterns and AI integration opportunities.
+
+      - name: Issue Analysis Test
+        if: github.event.inputs.test_type == 'issue-analysis-test'
+        uses: anthropics/claude-code-action@beta
+        with:
+          mode: agent
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          timeout_minutes: "10"
+          override_prompt: |
+            Analyze the current GitHub issues for AutoDevHub project.
+            
+            Please provide:
+            1. Summary of open issues and their priorities
+            2. Identification of AI-powered development tasks
+            3. Analysis of project phases and milestones
+            4. Recommendations for issue prioritization
+            5. Suggestions for AI assistance in resolving issues
+            
+            This tests Claude's ability to understand project context and provide strategic guidance.
+
+      - name: Integration Test Summary
+        run: |
+          echo "## Claude Integration Test Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Test Type**: ${{ github.event.inputs.test_type }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Repository**: ${{ github.repository }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Timestamp**: $(date -u '+%Y-%m-%d %H:%M:%S UTC')" >> $GITHUB_STEP_SUMMARY
+          echo "**Status**: Integration test completed" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Check the Claude Code Action step above for detailed AI response." >> $GITHUB_STEP_SUMMARY
