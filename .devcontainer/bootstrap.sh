@@ -1,13 +1,6 @@
 #!/bin/bash
 set -euo pipefail
 
-# 📜 Add custom CA certificate if present
-if [ -f "/workspaces/$(basename "$PWD")/.devcontainer/mycert.crt" ]; then
-  echo "📜 Installing custom certificate..."
-  sudo cp "/workspaces/$(basename "$PWD")/.devcontainer/mycert.crt" /usr/local/share/ca-certificates/
-  sudo update-ca-certificates
-fi
-
 # ⚙️ Install latest NPM
 npm install -g npm@11
 
