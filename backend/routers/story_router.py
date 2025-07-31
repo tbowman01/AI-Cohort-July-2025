@@ -39,7 +39,7 @@ logger = logging.getLogger(__name__)
 
 # Create router instance
 router = APIRouter(
-    prefix="/api/v1/stories",
+    prefix="",
     tags=["stories"],
     responses={
         400: {"model": ErrorResponse, "description": "Bad Request"},
