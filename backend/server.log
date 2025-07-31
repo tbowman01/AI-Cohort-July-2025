@@ -1,0 +1,31 @@
+INFO:routers.story_router:Story router initialized successfully
+INFO:     Started server process [540465]
+INFO:     Waiting for application startup.
+INFO:main:AutoDevHub API starting up...
+INFO:main:Environment: development
+INFO:main:Debug mode: False
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+INFO:     156.80.4.2:0 - "GET / HTTP/1.1" 200 OK
+INFO:     156.80.4.2:0 - "GET / HTTP/1.1" 200 OK
+INFO:     156.80.4.2:0 - "GET /api/v1/stories/ HTTP/1.1" 307 Temporary Redirect
+INFO:     156.80.4.2:0 - "GET /docs HTTP/1.1" 200 OK
+INFO:     156.80.4.2:0 - "GET /openapi.json HTTP/1.1" 200 OK
+INFO:     156.80.4.2:0 - "GET /docs HTTP/1.1" 200 OK
+INFO:     156.80.4.2:0 - "GET /openapi.json HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43548 - "GET /openapi.json HTTP/1.1" 200 OK
+INFO:services.story_generator:StoryGenerator initialized with template-based generation
+INFO:services.ai_client:AIClient initialized with provider: template
+INFO:services.ai_client:Available providers: ['template']
+INFO:routers.story_router:Generating story for: User login functionality...
+INFO:services.ai_client:Generating story with AI using template
+INFO:services.ai_client:Using template-based story generation
+INFO:services.story_generator:StoryGenerator initialized with template-based generation
+INFO:services.story_generator:Generating story for: User login functionality...
+INFO:services.story_generator:Successfully generated story with ID: STORY_20250731_191221
+INFO:services.story_generator:StoryGenerator initialized with template-based generation
+INFO:routers.story_router:Stored story with ID: STORY_20250731_191221
+INFO:routers.story_router:Successfully generated story: STORY_20250731_191221
+INFO:     127.0.0.1:43556 - "POST /api/v1/stories/generate HTTP/1.1" 200 OK
+INFO:routers.story_router:Story generated - ID: STORY_20250731_191221, Description: User login functionality...
+INFO:     127.0.0.1:55542 - "GET /api/v1/stories/ HTTP/1.1" 307 Temporary Redirect

@@ -142,7 +142,7 @@ async def root() -> Dict[str, str]:
 # Include routers
 app.include_router(
     stories.router,
-    prefix="/api/v1",
+    prefix="/api/v1/stories",
     tags=["Stories"]
 )
 
