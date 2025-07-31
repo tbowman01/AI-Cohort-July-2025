@@ -2,6 +2,7 @@ name: Claude Commit Analysis
 
 on:
   workflow_dispatch:
+  workflow_dispatch:
     inputs:
       analysis_type:
         description: "Type of analysis to perform"

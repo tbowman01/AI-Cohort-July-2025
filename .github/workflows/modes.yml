@@ -1,6 +1,7 @@
 name: Claude Mode Examples
 
 on:
+  workflow_dispatch:
   # Common events for both modes
   issue_comment:
     types: [created]
