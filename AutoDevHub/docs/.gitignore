@@ -1,0 +1,71 @@
+# Documentation - Jekyll/GitHub Pages .gitignore
+
+# Jekyll build output
+_site/
+.sass-cache/
+.jekyll-cache/
+.jekyll-metadata
+
+# Bundler
+vendor/
+.bundle/
+Gemfile.lock
+
+# Node dependencies (if using npm for Jekyll)
+node_modules/
+package-lock.json
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Temporary files
+*.tmp
+*.temp
+.cache/
+
+# Logs
+*.log
+
+# Environment variables
+.env
+.env.local
+
+# Local development
+.local/
+local/
+
+# Backup files
+*.bak
+*.backup
+*.old
+
+# Image processing
+.image-cache/
+
+# Search index files (if using search plugins)
+_search_index/
+search_data.json
+
+# Auto-generated files
+sitemap.xml
+feed.xml
+
+# Draft posts (optional - comment out if you want to track drafts)
+_drafts/
+
+# Local configuration overrides
+_config_local.yml
+_config_development.yml
