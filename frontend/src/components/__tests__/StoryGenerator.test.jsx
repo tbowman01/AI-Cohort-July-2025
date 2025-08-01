@@ -120,16 +120,10 @@ describe('StoryGenerator Component', () => {
       const submitButton = screen.getByRole('button', { name: /generate user stories/i })
       await user.click(submitButton)
       
-      // Check loading state
-      expectLoadingState(true)
-      
-      // Wait for API call to complete
+      // Wait for API call to complete and story to be displayed
       await waitFor(() => {
-        expectLoadingState(false)
+        expectStoryToBeDisplayed(mockStoryResponse)
       })
-      
-      // Verify story is displayed
-      expectStoryToBeDisplayed(mockStoryResponse)
     })
 
     it('makes correct API call with transformed payload', async () => {

@@ -3,8 +3,19 @@ import { beforeAll, afterEach, afterAll, vi } from 'vitest'
 import { cleanup } from '@testing-library/react'
 import { server } from './mocks/server'
 
-// Setup MSW
-beforeAll(() => server.listen({ onUnhandledRequest: 'warn' }))
+// Import fetch polyfill
+import 'whatwg-fetch'
+
+// Setup MSW - must be before any fetch polyfills
+beforeAll(() => {
+  server.listen({ 
+    onUnhandledRequest: (req, print) => {
+      // Log unhandled requests for debugging
+      console.error(`Unhandled ${req.method} request to ${req.url}`)
+      print.error()
+    }
+  })
+})
 afterEach(() => {
   cleanup()
   server.resetHandlers()

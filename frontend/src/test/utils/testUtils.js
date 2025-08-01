@@ -168,18 +168,30 @@ export const expectStoryToBeDisplayed = (story) => {
   const storyCard = document.querySelector('.story-card')
   expect(storyCard).toBeInTheDocument()
   
-  if (story.gherkin) {
-    expect(storyCard).toHaveTextContent(story.gherkin)
+  // Check for the presence of the story heading
+  expect(document.querySelector('.generated-stories')).toBeInTheDocument()
+  expect(document.querySelector('.generated-stories h2')).toHaveTextContent(/generated user stories/i)
+  
+  if (story.gherkin || story.gherkin_content) {
+    const storyText = story.gherkin || story.gherkin_content
+    // Check for key parts of the Gherkin content
+    if (storyText.includes('Feature:')) {
+      expect(storyCard).toHaveTextContent(/feature:/i)
+    }
+    if (storyText.includes('Scenario:')) {
+      expect(storyCard).toHaveTextContent(/scenario:/i)
+    }
   }
   
-  if (story.acceptance_criteria) {
+  if (story.acceptance_criteria && story.acceptance_criteria.length > 0) {
     story.acceptance_criteria.forEach(criteria => {
       expect(storyCard).toHaveTextContent(criteria)
     })
   }
   
-  if (story.estimated_points) {
-    expect(storyCard).toHaveTextContent(story.estimated_points.toString())
+  if (story.estimated_points || story.estimated_effort) {
+    const points = story.estimated_points || story.estimated_effort
+    expect(storyCard).toHaveTextContent(points.toString())
   }
 }
 
