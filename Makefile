@@ -1,6 +1,6 @@
 # AutoDevHub Development Makefile
 
-.PHONY: help setup install test lint format security clean dev build docs
+.PHONY: help setup install test lint format security clean dev build docs docs-serve docs-clean
 
 # Default target
 help:
@@ -15,7 +15,9 @@ help:
 	@echo "dev       - Start development servers"
 	@echo "build     - Build for production"
 	@echo "clean     - Clean build artifacts and cache"
-	@echo "docs      - Generate documentation"
+	@echo "docs      - Generate documentation (Jekyll build)"
+	@echo "docs-serve - Serve documentation locally at http://localhost:4000"
+	@echo "docs-clean - Clean documentation build artifacts"
 
 # Complete setup
 setup:
@@ -90,14 +92,34 @@ clean:
 	rm -rf .pytest_cache/
 	rm -rf node_modules/.cache/
 	rm -rf __pycache__/
+	rm -rf _site/
+	rm -rf .jekyll-cache/
 	find . -type d -name "*.egg-info" -exec rm -rf {} +
 	find . -type f -name "*.pyc" -delete
 
 # Generate documentation
 docs:
 	@echo "📚 Generating documentation..."
-	@echo "Documentation generation not yet implemented"
-	@echo "Future: Will generate API docs, architecture diagrams, etc."
+	@echo "Installing Ruby gems..."
+	bundle install --quiet
+	@echo "Building Jekyll site..."
+	bundle exec jekyll build --destination _site
+	@echo "✅ Documentation built successfully!"
+	@echo "📖 Open _site/index.html in your browser to view the documentation"
+	@echo "🌐 Or serve locally with: make docs-serve"
+
+# Serve documentation locally
+docs-serve:
+	@echo "🌐 Starting Jekyll development server..."
+	@echo "📖 Documentation will be available at http://localhost:4000"
+	@echo "💡 Use Ctrl+C to stop the server"
+	bundle exec jekyll serve --host 0.0.0.0 --port 4000
+
+# Clean documentation build
+docs-clean:
+	@echo "🧹 Cleaning documentation build..."
+	rm -rf _site/
+	rm -rf .jekyll-cache/
 
 # Development helpers
 check-deps:
