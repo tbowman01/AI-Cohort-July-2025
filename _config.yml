@@ -2,15 +2,18 @@
 title: "AutoDevHub Documentation"
 description: "AI-Powered DevOps Tracker - Comprehensive Project Documentation"
 baseurl: "/AI-Cohort-July-2025"
-url: "https://ai-cohort-july-2025.github.io"
+url: "https://tbowman01.github.io"
 
 # GitHub Pages settings
-remote_theme: minima
+theme: minima
 markdown: kramdown
 highlighter: rouge
 kramdown:
   input: GFM
   syntax_highlighter: rouge
+  syntax_highlighter_opts:
+    block:
+      line_numbers: false
 
 # Plugins
 plugins:
@@ -64,7 +67,7 @@ theme: minima
 exclude:
   - node_modules/
   - backend/
-  - frontend/node_modules/
+  - frontend/
   - "*.log"
   - Gemfile
   - Gemfile.lock
@@ -73,6 +76,15 @@ exclude:
   - coordination/
   - memory/
   - old.CLAUDE.md
+  - "README-*.md"
+  - "*.lock"
+  - ".bundle/"
+  - ".git/"
+  - ".github/"
+  - "test/"
+  - "tests/"
+  - "spec/"
+  - "*.gemspec"
 
 # Include documentation files
 include:

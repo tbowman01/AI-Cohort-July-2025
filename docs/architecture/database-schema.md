@@ -589,4 +589,4 @@ def monitor_query(func):
 
 ---
 
-*For API integration details, see [API Specification]({% link architecture/api-specification.md %}). For system overview, see [System Overview]({% link architecture/system-overview.md %}).*
+*For API integration details, see [API Specification](/architecture/api-specification.md). For system overview, see [System Overview](/architecture/system-overview.md).*

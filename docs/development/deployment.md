@@ -566,4 +566,4 @@ sudo systemctl restart nginx
 
 ---
 
-*For development setup, see [Setup Guide]({% link development/setup-guide.md %}). For contribution guidelines, see [Contributing Guidelines]({% link development/contributing.md %}).*
+*For development setup, see [Setup Guide](/docs/development/setup-guide.md). For contribution guidelines, see [Contributing Guidelines](/docs/development/contributing.md).*

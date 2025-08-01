@@ -436,4 +436,4 @@ npm run dev
 
 ---
 
-*For deployment procedures, see [Deployment Guide]({% link development/deployment.md %}). For contribution guidelines, see [Contributing Guidelines]({% link development/contributing.md %}).*
+*For deployment procedures, see [Deployment Guide](/development/deployment.md). For contribution guidelines, see [Contributing Guidelines](/development/contributing.md).*

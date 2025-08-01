@@ -133,4 +133,4 @@ AutoDevHub is an AI-powered DevOps tracker that streamlines project management b
 
 ---
 
-*For API details, see [API Specification]({% link docs/architecture/api-specification.md %}). For database design, see [Database Schema]({% link docs/architecture/database-schema.md %}).*
+*For API details, see [API Specification](/docs/architecture/api-specification.md). For database design, see [Database Schema](/docs/architecture/database-schema.md).*

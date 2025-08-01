@@ -31,7 +31,7 @@ git remote add upstream https://github.com/ai-cohort-july-2025/AI-Cohort-July-20
 ```
 
 ### 2. Development Setup
-Follow the [Setup Guide]({% link development/setup-guide.md %}) to configure your development environment.
+Follow the [Setup Guide](/docs/development/setup-guide.md) to configure your development environment.
 
 ### 3. Create Feature Branch
 ```bash
