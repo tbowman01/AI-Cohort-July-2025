@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Development Guide - AutoDevHub</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            line-height: 1.6;
+            color: #24292e;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        h1 { color: #0366d6; border-bottom: 2px solid #e1e4e8; padding-bottom: 10px; }
+        h2 { color: #0366d6; margin-top: 30px; }
+        a { color: #0366d6; text-decoration: none; }
+        a:hover { text-decoration: underline; }
+        .dev-section { margin: 20px 0; padding: 20px; background: #f6f8fa; border-radius: 6px; }
+        .nav { margin-bottom: 20px; }
+        .nav a { margin-right: 15px; }
+        .quick-start { background: #e6ffed; border-left: 4px solid #28a745; padding: 20px; margin: 20px 0; }
+        pre { background: #f6f8fa; padding: 15px; border-radius: 6px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <nav class="nav">
+        <a href="../">← Back to Documentation Hub</a>
+    </nav>
+    
+    <h1>⚙️ Development Guide</h1>
+    <p>Complete development resources for contributing to AutoDevHub, from initial setup to production deployment.</p>
+
+    <div class="quick-start">
+        <h2>🚀 Quick Start</h2>
+        <p>Get AutoDevHub running locally in minutes:</p>
+        <pre><code>git clone https://github.com/tbowman01/AI-Cohort-July-2025.git
+cd AI-Cohort-July-2025
+./dev-setup.sh && docker-compose up -d</code></pre>
+        <p>Access your development environment at <code>http://localhost:3000</code></p>
+    </div>
+
+    <div class="dev-section">
+        <h2><a href="setup-guide.html">⚙️ Setup Guide</a></h2>
+        <p>Complete environment configuration and dependency installation.</p>
+        <ul>
+            <li>Prerequisites and required software</li>
+            <li>Step-by-step environment setup</li>
+            <li>Database initialization and configuration</li>
+            <li>API keys and environment variables</li>
+        </ul>
+    </div>
+
+    <div class="dev-section">
+        <h2><a href="deployment.html">🚀 Deployment</a></h2>
+        <p>Production deployment procedures and infrastructure setup.</p>
+        <ul>
+            <li>Docker container deployment</li>
+            <li>Kubernetes orchestration strategies</li>
+            <li>Environment configuration management</li>
+            <li>Monitoring and health checks</li>
+        </ul>
+    </div>
+
+    <div class="dev-section">
+        <h2><a href="contributing.html">🤝 Contributing</a></h2>
+        <p>Contribution guidelines, code standards, and development workflow.</p>
+        <ul>
+            <li>Code style guides and conventions</li>
+            <li>Pull request process and requirements</li>
+            <li>Testing requirements and coverage</li>
+            <li>Documentation standards</li>
+        </ul>
+    </div>
+
+    <h2>🛠️ Development Environment</h2>
+    <p><strong>Prerequisites:</strong></p>
+    <ul>
+        <li><strong>Node.js</strong> 18+ and npm/yarn</li>
+        <li><strong>Python</strong> 3.11+ with pip</li>
+        <li><strong>Docker</strong> and Docker Compose</li>
+        <li><strong>Git</strong> for version control</li>
+    </ul>
+
+    <h2>🧪 Testing Strategy</h2>
+    <ul>
+        <li><strong>Backend Testing</strong>: pytest with 95%+ coverage requirement</li>
+        <li><strong>Frontend Testing</strong>: Jest and React Testing Library</li>
+        <li><strong>Integration Testing</strong>: End-to-end API testing</li>
+        <li><strong>Security Testing</strong>: Bandit vulnerability scanning</li>
+    </ul>
+
+    <h2>📊 Code Quality</h2>
+    <ul>
+        <li><strong>ESLint</strong>: Frontend code linting</li>
+        <li><strong>Pylint</strong>: Backend code analysis</li>
+        <li><strong>Prettier</strong>: Code formatting</li>
+        <li><strong>Pre-commit hooks</strong>: Automated quality checks</li>
+    </ul>
+
+    <h2>🔗 Development Resources</h2>
+    <ul>
+        <li><strong><a href="../architecture/">System Architecture</a></strong>: Technical architecture overview</li>
+        <li><strong><a href="../architecture/api-specification.html">API Documentation</a></strong>: RESTful API reference</li>
+        <li><strong><a href="../adr/">ADR Collection</a></strong>: Architectural decision records</li>
+        <li><strong><a href="https://github.com/tbowman01/AI-Cohort-July-2025">GitHub Repository</a></strong>: Source code and issues</li>
+    </ul>
+
+    <p><a href="../">← Back to Documentation Hub</a></p>
+</body>
+</html>

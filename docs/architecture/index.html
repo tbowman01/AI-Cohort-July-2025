@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>System Architecture - AutoDevHub</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            line-height: 1.6;
+            color: #24292e;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        h1 { color: #0366d6; border-bottom: 2px solid #e1e4e8; padding-bottom: 10px; }
+        h2 { color: #0366d6; margin-top: 30px; }
+        a { color: #0366d6; text-decoration: none; }
+        a:hover { text-decoration: underline; }
+        .arch-section { margin: 20px 0; padding: 20px; background: #f6f8fa; border-radius: 6px; }
+        .nav { margin-bottom: 20px; }
+        .nav a { margin-right: 15px; }
+    </style>
+</head>
+<body>
+    <nav class="nav">
+        <a href="../">← Back to Documentation Hub</a>
+    </nav>
+    
+    <h1>🏗️ System Architecture</h1>
+    <p>Complete system architecture documentation with visual diagrams and technical specifications.</p>
+
+    <div class="arch-section">
+        <h2><a href="system-overview.html">📊 System Overview</a></h2>
+        <p>High-level architecture and component relationships showing how AutoDevHub's microservices interact to provide AI-powered DevOps tracking capabilities.</p>
+        <ul>
+            <li>Component architecture diagrams</li>
+            <li>Data flow visualizations</li>
+            <li>Service interactions</li>
+            <li>Technology stack overview</li>
+        </ul>
+    </div>
+
+    <div class="arch-section">
+        <h2><a href="api-specification.html">🔌 API Specification</a></h2>
+        <p>RESTful API endpoints and data models with comprehensive OpenAPI documentation for all backend services.</p>
+        <ul>
+            <li>Complete REST API reference</li>
+            <li>Request/response schemas</li>
+            <li>Authentication mechanisms</li>
+            <li>Error handling specifications</li>
+        </ul>
+    </div>
+
+    <div class="arch-section">
+        <h2><a href="database-schema.html">🗄️ Database Schema</a></h2>
+        <p>Data structures and entity relationships defining how AutoDevHub stores and manages project information.</p>
+        <ul>
+            <li>Entity relationship diagrams</li>
+            <li>Table schemas and constraints</li>
+            <li>Data migration strategies</li>
+            <li>Performance optimization</li>
+        </ul>
+    </div>
+
+    <h2>🎯 Architecture Principles</h2>
+    <ul>
+        <li><strong>Microservices Design</strong>: Scalable, loosely-coupled services</li>
+        <li><strong>API-First Approach</strong>: Well-defined interfaces between components</li>
+        <li><strong>Container Ready</strong>: Docker and Kubernetes deployment support</li>
+        <li><strong>Event-Driven</strong>: Asynchronous processing for better performance</li>
+        <li><strong>Security by Design</strong>: Built-in authentication and authorization</li>
+    </ul>
+
+    <h2>🚀 Technology Stack</h2>
+    <ul>
+        <li><strong>Backend</strong>: FastAPI (Python 3.11+) with SQLite + Redis</li>
+        <li><strong>Frontend</strong>: React + TypeScript with Vite</li>
+        <li><strong>AI Integration</strong>: Claude AI for story generation</li>
+        <li><strong>Infrastructure</strong>: Docker, GitHub Actions CI/CD</li>
+        <li><strong>Testing</strong>: pytest (backend), Jest (frontend)</li>
+    </ul>
+
+    <p><a href="../">← Back to Documentation Hub</a></p>
+</body>
+</html>
