@@ -1,0 +1,524 @@
+name: Automated Documentation Suite
+# Comprehensive automation using claude-code-action@beta for any repository
+
+on:
+  # Triggered by various repository events
+  push:
+    branches: [main, develop]
+  pull_request:
+    types: [opened, synchronize]
+  issues:
+    types: [opened, labeled]
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      force_regenerate:
+        description: 'Force regenerate all documentation'
+        required: false
+        default: false
+        type: boolean
+      target_artifacts:
+        description: 'Specific artifacts to generate (comma-separated: prd,adr,readme,architecture)'
+        required: false
+        default: 'all'
+        type: string
+
+env:
+  # Repository analysis configuration
+  ANALYSIS_DEPTH: 'comprehensive'
+  OUTPUT_FORMAT: 'markdown'
+  ARTIFACT_RETENTION: '90' # days
+  
+jobs:
+  # Repository Analysis - Infer context and requirements
+  repository-analysis:
+    name: Analyze Repository Context
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    outputs:
+      tech_stack: ${{ steps.analyze.outputs.tech_stack }}
+      project_type: ${{ steps.analyze.outputs.project_type }}
+      complexity_score: ${{ steps.analyze.outputs.complexity_score }}
+      requires_prd: ${{ steps.analyze.outputs.requires_prd }}
+      requires_adr: ${{ steps.analyze.outputs.requires_adr }}
+      documentation_state: ${{ steps.analyze.outputs.documentation_state }}
+    
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Full history for comprehensive analysis
+      
+      - name: Repository Context Analysis
+        id: analyze
+        uses: anthropics/claude-code-action@beta
+        with:
+          mode: agent
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          timeout_minutes: "15"
+          override_prompt: |
+            Analyze this repository comprehensively and provide structured output for automation.
+            
+            ANALYSIS REQUIREMENTS:
+            1. **Technology Stack Detection**: Identify all languages, frameworks, databases, tools
+            2. **Project Classification**: Determine type (web-app, library, cli-tool, microservice, etc.)
+            3. **Complexity Assessment**: Score 1-10 based on codebase size, architecture complexity
+            4. **Documentation Gap Analysis**: Identify missing documentation artifacts
+            5. **Repository Structure Assessment**: Evaluate organization and conventions
+            
+            REQUIRED JSON OUTPUT FORMAT:
+            ```json
+            {
+              "tech_stack": {
+                "primary_language": "string",
+                "frameworks": ["array"],
+                "databases": ["array"],
+                "deployment": ["array"],
+                "testing": ["array"]
+              },
+              "project_type": "web-app|library|cli-tool|microservice|mobile-app|other",
+              "complexity_score": 1-10,
+              "architecture_patterns": ["array"],
+              "requires_prd": boolean,
+              "requires_adr": boolean,
+              "existing_documentation": {
+                "readme_quality": 1-10,
+                "has_architecture_docs": boolean,
+                "has_api_docs": boolean,
+                "has_deployment_guide": boolean,
+                "documentation_gaps": ["array"]
+              },
+              "automation_recommendations": {
+                "priority_artifacts": ["array"],
+                "suggested_workflows": ["array"]
+              }
+            }
+            ```
+            
+            ANALYSIS SCOPE:
+            - Examine package.json, requirements.txt, Cargo.toml, etc.
+            - Review directory structure and naming conventions
+            - Analyze existing documentation quality and coverage
+            - Assess CI/CD pipeline maturity
+            - Identify integration patterns and external dependencies
+            
+            Output ONLY the JSON - no additional text or formatting.
+
+  # PRD Generation - Product Requirements Document
+  generate-prd:
+    name: Generate Product Requirements Document
+    needs: repository-analysis
+    runs-on: ubuntu-latest
+    if: needs.repository-analysis.outputs.requires_prd == 'true' || contains(github.event.inputs.target_artifacts, 'prd') || contains(github.event.inputs.target_artifacts, 'all')
+    permissions:
+      contents: write
+      pull-requests: write
+      id-token: write
+    
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Generate PRD
+        uses: anthropics/claude-code-action@beta
+        with:
+          mode: agent
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          timeout_minutes: "20"
+          override_prompt: |
+            Generate a comprehensive Product Requirements Document (PRD) for this repository.
+            
+            CONTEXT FROM ANALYSIS:
+            - Tech Stack: ${{ needs.repository-analysis.outputs.tech_stack }}
+            - Project Type: ${{ needs.repository-analysis.outputs.project_type }}
+            - Complexity: ${{ needs.repository-analysis.outputs.complexity_score }}/10
+            
+            PRD STRUCTURE:
+            1. **Executive Summary**
+               - Project vision and mission
+               - Key value propositions
+               - Target audience and use cases
+            
+            2. **Functional Requirements**
+               - Core features and capabilities
+               - User workflows and interactions
+               - Integration requirements
+            
+            3. **Technical Requirements**
+               - Performance specifications
+               - Security requirements
+               - Scalability considerations
+               - Technology constraints
+            
+            4. **User Experience Requirements**
+               - Interface design principles
+               - Accessibility standards
+               - User journey mapping
+            
+            5. **Success Metrics**
+               - Key Performance Indicators (KPIs)
+               - Quality metrics
+               - Business objectives
+            
+            REQUIREMENTS:
+            - Create file at `docs/PRD.md`
+            - Use professional tone and clear structure
+            - Include specific, measurable requirements
+            - Reference existing code patterns and architecture
+            - Add relevant diagrams using Mermaid syntax where appropriate
+            
+            ANALYSIS INSTRUCTIONS:
+            - Examine the codebase to understand current functionality
+            - Review existing documentation for context
+            - Identify patterns from similar projects in the domain
+            - Infer user needs from code structure and features
+            - Consider regulatory and compliance requirements based on domain
+            
+            Generate comprehensive PRD that serves as definitive product specification.
+
+  # ADR Generation - Architecture Decision Records
+  generate-adrs:
+    name: Generate Architecture Decision Records
+    needs: repository-analysis
+    runs-on: ubuntu-latest
+    if: needs.repository-analysis.outputs.requires_adr == 'true' || contains(github.event.inputs.target_artifacts, 'adr') || contains(github.event.inputs.target_artifacts, 'all')
+    permissions:
+      contents: write
+      pull-requests: write
+      id-token: write
+    
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Generate ADRs
+        uses: anthropics/claude-code-action@beta
+        with:
+          mode: agent
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          timeout_minutes: "25"
+          override_prompt: |
+            Generate comprehensive Architecture Decision Records (ADRs) for this repository.
+            
+            REPOSITORY CONTEXT:
+            - Tech Stack: ${{ needs.repository-analysis.outputs.tech_stack }}
+            - Project Type: ${{ needs.repository-analysis.outputs.project_type }}
+            - Complexity Score: ${{ needs.repository-analysis.outputs.complexity_score }}/10
+            
+            ADR GENERATION STRATEGY:
+            1. **Analyze existing architecture decisions** from codebase
+            2. **Identify missing ADRs** for significant choices
+            3. **Create ADRs following standard format**
+            4. **Ensure consistency** with existing ADR numbering
+            
+            REQUIRED ADRs TO ANALYZE/CREATE:
+            - Technology stack selections (languages, frameworks, databases)
+            - Architecture patterns (MVC, microservices, serverless, etc.)
+            - Data storage decisions
+            - Security architecture choices
+            - Deployment and infrastructure decisions
+            - Third-party integration strategies
+            - Testing and quality assurance approaches
+            
+            ADR TEMPLATE FORMAT:
+            ```markdown
+            # ADR-XXX: [Decision Title]
+            
+            ## Status
+            [Proposed|Accepted|Deprecated|Superseded]
+            
+            ## Context
+            [Business/technical context requiring decision]
+            
+            ## Decision
+            [The specific decision made]
+            
+            ## Consequences
+            ### Positive Consequences
+            - [Benefit 1]
+            - [Benefit 2]
+            
+            ### Negative Consequences
+            - [Trade-off 1]
+            - [Trade-off 2]
+            
+            ### Risks
+            - [Risk 1 and mitigation]
+            - [Risk 2 and mitigation]
+            
+            ## Alternatives Considered
+            ### [Alternative 1]
+            - Pros: [Benefits]
+            - Cons: [Drawbacks]
+            - Rejection Reason: [Why not chosen]
+            
+            ## Implementation Notes
+            - [Implementation guidance]
+            - [Monitoring/validation approaches]
+            ```
+            
+            EXECUTION REQUIREMENTS:
+            - Create/update files in `docs/adr/` directory
+            - Follow consistent numbering (ADR-001, ADR-002, etc.)
+            - Create comprehensive index file `docs/adr/index.md`
+            - Cross-reference related ADRs
+            - Include implementation evidence from codebase analysis
+            
+            Generate thorough ADRs that document architectural reasoning and provide value for future development decisions.
+
+  # Architecture Documentation Generation
+  generate-architecture-docs:
+    name: Generate Architecture Documentation
+    needs: repository-analysis
+    runs-on: ubuntu-latest
+    if: contains(github.event.inputs.target_artifacts, 'architecture') || contains(github.event.inputs.target_artifacts, 'all')
+    permissions:
+      contents: write
+      pull-requests: write
+      id-token: write
+    
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Generate Architecture Documentation
+        uses: anthropics/claude-code-action@beta
+        with:
+          mode: agent
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          timeout_minutes: "30"
+          override_prompt: |
+            Generate comprehensive architecture documentation with visual diagrams.
+            
+            REPOSITORY ANALYSIS:
+            - Tech Stack: ${{ needs.repository-analysis.outputs.tech_stack }}
+            - Project Type: ${{ needs.repository-analysis.outputs.project_type }}
+            - Complexity: ${{ needs.repository-analysis.outputs.complexity_score }}/10
+            
+            ARCHITECTURE DOCUMENTATION REQUIREMENTS:
+            
+            1. **System Overview** (`docs/architecture/system-overview.md`)
+               - High-level architecture diagram (Mermaid)
+               - Component responsibilities
+               - Data flow patterns
+               - Integration points
+            
+            2. **Component Architecture** (`docs/architecture/components.md`)
+               - Detailed component diagrams
+               - Interface specifications
+               - Dependency relationships
+               - Component lifecycle
+            
+            3. **Data Architecture** (`docs/architecture/data-architecture.md`)
+               - Database schema diagrams
+               - Data flow diagrams
+               - Storage strategies
+               - Data consistency patterns
+            
+            4. **Deployment Architecture** (`docs/architecture/deployment.md`)
+               - Infrastructure diagrams
+               - Deployment pipelines
+               - Environment configurations
+               - Scaling strategies
+            
+            5. **Security Architecture** (`docs/architecture/security.md`)
+               - Security boundary diagrams
+               - Authentication/authorization flows
+               - Threat model visualization
+               - Security controls mapping
+            
+            DIAGRAM REQUIREMENTS:
+            - Use Mermaid syntax for all diagrams
+            - Include multiple diagram types: flowchart, sequence, class, ER
+            - Ensure diagrams are maintainable and version-controlled
+            - Add detailed captions and explanations
+            
+            ANALYSIS INSTRUCTIONS:
+            - Examine code structure to understand actual architecture
+            - Identify patterns from framework conventions
+            - Document both intended and emergent architecture
+            - Include performance and scalability considerations
+            - Reference specific files and modules in explanations
+            
+            Create comprehensive, visual architecture documentation that serves as definitive technical reference.
+
+  # README Enhancement
+  enhance-readme:
+    name: Enhance README Documentation
+    needs: repository-analysis
+    runs-on: ubuntu-latest
+    if: contains(github.event.inputs.target_artifacts, 'readme') || contains(github.event.inputs.target_artifacts, 'all')
+    permissions:
+      contents: write
+      pull-requests: write
+      id-token: write
+    
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Enhance README
+        uses: anthropics/claude-code-action@beta
+        with:
+          mode: agent
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          timeout_minutes: "15"
+          override_prompt: |
+            Enhance the README.md to be comprehensive and professional.
+            
+            CURRENT CONTEXT:
+            - Tech Stack: ${{ needs.repository-analysis.outputs.tech_stack }}
+            - Project Type: ${{ needs.repository-analysis.outputs.project_type }}
+            - Documentation State: ${{ needs.repository-analysis.outputs.documentation_state }}
+            
+            README ENHANCEMENT STRATEGY:
+            1. **Preserve existing content** that is valuable
+            2. **Fill documentation gaps** identified in analysis
+            3. **Improve structure and readability**
+            4. **Add missing sections** following best practices
+            
+            REQUIRED README SECTIONS:
+            - Project title and description with badges
+            - Quick start / installation instructions
+            - Usage examples with code snippets
+            - Architecture overview (link to detailed docs)
+            - Contributing guidelines
+            - License and support information
+            - API documentation links (if applicable)
+            - Performance metrics and benchmarks (if applicable)
+            
+            QUALITY STANDARDS:
+            - Professional tone and clear writing
+            - Accurate installation and setup instructions
+            - Working code examples
+            - Proper markdown formatting
+            - Mobile-friendly layout
+            - SEO-optimized content
+            
+            ANALYSIS REQUIREMENTS:
+            - Test installation instructions for accuracy
+            - Verify all links and references
+            - Ensure examples match current codebase
+            - Include relevant screenshots or demos
+            - Add troubleshooting section for common issues
+            
+            Create a README that effectively onboards new users and contributors.
+
+  # Documentation Validation and PR Creation
+  finalize-documentation:
+    name: Validate and Create PR
+    needs: [repository-analysis, generate-prd, generate-adrs, generate-architecture-docs, enhance-readme]
+    runs-on: ubuntu-latest
+    if: always() && (needs.generate-prd.result == 'success' || needs.generate-adrs.result == 'success' || needs.generate-architecture-docs.result == 'success' || needs.enhance-readme.result == 'success')
+    permissions:
+      contents: write
+      pull-requests: write
+      id-token: write
+    
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Validate Generated Documentation
+        uses: anthropics/claude-code-action@beta
+        with:
+          mode: agent
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          timeout_minutes: "10"
+          override_prompt: |
+            Validate all generated documentation for quality and consistency.
+            
+            VALIDATION REQUIREMENTS:
+            1. **Content Quality Check**
+               - Verify all markdown syntax is correct
+               - Ensure all internal links work
+               - Check diagram syntax (Mermaid)
+               - Validate code examples
+            
+            2. **Consistency Verification**
+               - Cross-reference information between documents
+               - Ensure terminology consistency
+               - Verify version and date consistency
+            
+            3. **Completeness Assessment**
+               - Check all sections are properly filled
+               - Ensure no placeholder text remains
+               - Verify all required files were created
+            
+            4. **Integration Testing**
+               - Test that documentation integrates well with existing content
+               - Verify navigation and cross-references work
+               - Check formatting consistency with existing docs
+            
+            If validation passes, create a PR with:
+            - Clear title: "docs: automated documentation generation and enhancement"
+            - Comprehensive description of changes
+            - Checklist of generated artifacts
+            - Request for human review where appropriate
+            
+            If validation fails, provide specific feedback for correction.
+
+  # Workflow Summary and Metrics
+  generate-summary:
+    name: Generate Automation Summary
+    needs: [repository-analysis, generate-prd, generate-adrs, generate-architecture-docs, enhance-readme, finalize-documentation]
+    runs-on: ubuntu-latest
+    if: always()
+    permissions:
+      contents: read
+      issues: write
+      id-token: write
+    
+    steps:
+      - name: Generate Workflow Summary
+        uses: anthropics/claude-code-action@beta
+        with:
+          mode: agent
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          timeout_minutes: "5"
+          override_prompt: |
+            Generate a comprehensive summary of the automated documentation workflow execution.
+            
+            WORKFLOW RESULTS:
+            - Repository Analysis: ${{ needs.repository-analysis.result }}
+            - PRD Generation: ${{ needs.generate-prd.result }}
+            - ADR Generation: ${{ needs.generate-adrs.result }}
+            - Architecture Docs: ${{ needs.generate-architecture-docs.result }}
+            - README Enhancement: ${{ needs.enhance-readme.result }}
+            - Documentation Validation: ${{ needs.finalize-documentation.result }}
+            
+            SUMMARY REQUIREMENTS:
+            1. **Execution Overview**
+               - Total execution time
+               - Success/failure rates
+               - Generated artifacts count
+            
+            2. **Quality Metrics**
+               - Documentation coverage improvement
+               - Quality score changes
+               - Gap analysis results
+            
+            3. **Next Steps Recommendations**
+               - Suggested manual reviews
+               - Additional automation opportunities
+               - Maintenance recommendations
+            
+            4. **Process Improvements**
+               - Workflow optimization suggestions
+               - Error handling improvements
+               - Performance enhancement ideas
+            
+            Create detailed summary comment and update repository documentation index.

@@ -1,0 +1,338 @@
+name: Claude Auto Documentation
+# Reusable workflow template for any repository
+# Copy this file to .github/workflows/ and customize as needed
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    types: [opened, synchronize]
+  workflow_dispatch:
+    inputs:
+      artifacts:
+        description: 'Artifacts to generate (prd,adr,readme,architecture,all)'
+        required: false
+        default: 'all'
+        type: choice
+        options:
+          - all
+          - prd
+          - adr
+          - readme
+          - architecture
+      force_regenerate:
+        description: 'Force regenerate existing documentation'
+        required: false
+        default: false
+        type: boolean
+
+# CONFIGURATION - Customize these for your repository
+env:
+  # Documentation configuration
+  DOCS_DIR: 'docs'                    # Primary documentation directory
+  ADR_DIR: 'docs/adr'                 # Architecture Decision Records
+  ARCHITECTURE_DIR: 'docs/architecture' # Architecture documentation
+  
+  # Quality thresholds
+  MIN_COMPLEXITY_FOR_PRD: 3           # 1-10 scale, when to generate PRD
+  MIN_COMPLEXITY_FOR_ADR: 4           # 1-10 scale, when to generate ADRs
+  
+  # Automation behavior
+  AUTO_CREATE_PR: true                # Automatically create PR with changes
+  REQUIRE_HUMAN_REVIEW: true          # Flag for human review requirement
+
+jobs:
+  # Repository analysis with customizable parameters
+  analyze-repository:
+    name: Analyze Repository
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    outputs:
+      config: ${{ steps.generate-config.outputs.config }}
+    
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Generate Repository Configuration
+        id: generate-config
+        uses: anthropics/claude-code-action@beta
+        with:
+          mode: agent
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          timeout_minutes: "10"
+          override_prompt: |
+            Analyze this repository and generate configuration for automated documentation.
+            
+            REPOSITORY ANALYSIS PARAMETERS:
+            - Target Documentation Directory: ${{ env.DOCS_DIR }}
+            - Minimum Complexity for PRD: ${{ env.MIN_COMPLEXITY_FOR_PRD }}
+            - Minimum Complexity for ADR: ${{ env.MIN_COMPLEXITY_FOR_ADR }}
+            - Requested Artifacts: ${{ github.event.inputs.artifacts || 'all' }}
+            
+            ANALYSIS FRAMEWORK:
+            1. **Technology Detection**
+               - Primary language and version
+               - Framework identification
+               - Database and storage solutions
+               - Build tools and package managers
+               - Testing frameworks
+               - Deployment targets
+            
+            2. **Project Classification**
+               - Application type (web, mobile, cli, library, etc.)
+               - Domain (e-commerce, fintech, healthcare, etc.)
+               - Architecture pattern (monolith, microservices, serverless)
+               - Development stage (prototype, MVP, production)
+            
+            3. **Complexity Assessment**
+               - Lines of code analysis
+               - Number of modules/packages
+               - External dependencies count
+               - Architecture complexity
+               - Team size indicators
+            
+            4. **Documentation Gap Analysis**
+               - Existing documentation quality
+               - Missing critical documents
+               - Outdated information identification
+               - Consistency issues
+            
+            5. **Automation Recommendations**
+               - Priority artifacts to generate
+               - Custom workflow suggestions
+               - Integration opportunities
+            
+            OUTPUT REQUIRED JSON:
+            ```json
+            {
+              "repository": {
+                "name": "string",
+                "type": "web-app|library|cli-tool|mobile-app|microservice|monolith",
+                "domain": "string",
+                "primary_language": "string",
+                "tech_stack": {
+                  "frontend": ["array"],
+                  "backend": ["array"],
+                  "database": ["array"],
+                  "deployment": ["array"],
+                  "testing": ["array"]
+                }
+              },
+              "metrics": {
+                "complexity_score": 1-10,
+                "lines_of_code": "number",
+                "file_count": "number",
+                "dependency_count": "number",
+                "documentation_coverage": 1-10
+              },
+              "recommendations": {
+                "generate_prd": boolean,
+                "generate_adr": boolean,
+                "generate_architecture": boolean,
+                "enhance_readme": boolean,
+                "priority_order": ["array"],
+                "custom_sections": ["array"]
+              },
+              "existing_docs": {
+                "has_readme": boolean,
+                "readme_quality": 1-10,
+                "has_contributing": boolean,
+                "has_changelog": boolean,
+                "architecture_docs": ["array"],
+                "adr_count": "number"
+              }
+            }
+            ```
+            
+            Focus on actionable insights that will drive high-quality documentation generation.
+
+  # Conditional artifact generation based on analysis
+  generate-documentation:
+    name: Generate Documentation
+    needs: analyze-repository
+    runs-on: ubuntu-latest
+    if: fromJSON(needs.analyze-repository.outputs.config).recommendations.generate_prd == true || fromJSON(needs.analyze-repository.outputs.config).recommendations.generate_adr == true
+    permissions:
+      contents: write
+      pull-requests: write
+      id-token: write
+    
+    strategy:
+      matrix:
+        include:
+          - artifact: "prd"
+            condition: ${{ fromJSON(needs.analyze-repository.outputs.config).recommendations.generate_prd }}
+          - artifact: "adr"
+            condition: ${{ fromJSON(needs.analyze-repository.outputs.config).recommendations.generate_adr }}
+          - artifact: "architecture"
+            condition: ${{ fromJSON(needs.analyze-repository.outputs.config).recommendations.generate_architecture }}
+          - artifact: "readme"
+            condition: ${{ fromJSON(needs.analyze-repository.outputs.config).recommendations.enhance_readme }}
+    
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Generate ${{ matrix.artifact }} Documentation
+        if: matrix.condition == true
+        uses: anthropics/claude-code-action@beta
+        with:
+          mode: agent
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          timeout_minutes: "20"
+          override_prompt: |
+            Generate high-quality ${{ matrix.artifact }} documentation for this repository.
+            
+            REPOSITORY CONFIG: ${{ needs.analyze-repository.outputs.config }}
+            
+            DOCUMENTATION TYPE: ${{ matrix.artifact }}
+            
+            GENERATION INSTRUCTIONS based on artifact type:
+            
+            {% if matrix.artifact == 'prd' %}
+            **PRODUCT REQUIREMENTS DOCUMENT (PRD)**
+            - Target file: `${{ env.DOCS_DIR }}/PRD.md`
+            - Focus on business requirements and user value
+            - Include technical constraints from analysis
+            - Reference existing codebase patterns
+            - Add measurable success criteria
+            
+            {% elif matrix.artifact == 'adr' %}
+            **ARCHITECTURE DECISION RECORDS (ADRs)**
+            - Target directory: `${{ env.ADR_DIR }}/`
+            - Analyze existing architectural decisions in code
+            - Create missing ADRs for significant choices
+            - Follow standard ADR template format
+            - Cross-reference related decisions
+            
+            {% elif matrix.artifact == 'architecture' %}
+            **ARCHITECTURE DOCUMENTATION**
+            - Target directory: `${{ env.ARCHITECTURE_DIR }}/`
+            - Create comprehensive system diagrams
+            - Document component interactions
+            - Include deployment and data architecture
+            - Use Mermaid for all diagrams
+            
+            {% elif matrix.artifact == 'readme' %}
+            **README ENHANCEMENT**
+            - Target file: `README.md`
+            - Preserve valuable existing content
+            - Add missing standard sections
+            - Include accurate setup instructions
+            - Add usage examples and contribution guidelines
+            {% endif %}
+            
+            QUALITY REQUIREMENTS:
+            - Professional tone and clear structure
+            - Accurate technical details
+            - Maintainable and version-controlled
+            - Consistent with existing documentation style
+            - Include relevant code examples and references
+            
+            Generate comprehensive, production-ready documentation.
+
+  # Documentation validation and integration
+  validate-and-integrate:
+    name: Validate Documentation
+    needs: [analyze-repository, generate-documentation]
+    runs-on: ubuntu-latest
+    if: always() && needs.generate-documentation.result == 'success'
+    permissions:
+      contents: write
+      pull-requests: write
+      id-token: write
+    
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Validate and Create PR
+        uses: anthropics/claude-code-action@beta
+        with:
+          mode: agent
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          timeout_minutes: "10"
+          override_prompt: |
+            Validate generated documentation and create integration PR.
+            
+            VALIDATION CHECKLIST:
+            1. Verify markdown syntax correctness
+            2. Test all internal and external links
+            3. Validate Mermaid diagram syntax
+            4. Check cross-references between documents
+            5. Ensure consistent terminology and style
+            6. Verify code examples are accurate
+            
+            INTEGRATION REQUIREMENTS:
+            - Create feature branch: `automated-docs-${date}`
+            - Comprehensive PR description with checklist
+            - Flag areas requiring human review
+            - Include before/after documentation coverage metrics
+            - Add reviewer assignment suggestions
+            
+            PR TEMPLATE:
+            ```markdown
+            ## 🤖 Automated Documentation Generation
+            
+            This PR contains automatically generated documentation using Claude AI analysis.
+            
+            ### Generated Artifacts
+            - [ ] Product Requirements Document (PRD)
+            - [ ] Architecture Decision Records (ADRs)  
+            - [ ] Architecture Documentation
+            - [ ] README Enhancement
+            
+            ### Quality Metrics
+            - Documentation Coverage: X% → Y%
+            - Complexity Score: X/10
+            - Generated Files: N
+            
+            ### Human Review Required
+            - [ ] Business requirements accuracy
+            - [ ] Technical implementation details
+            - [ ] Branding and messaging consistency
+            
+            ### Validation Results
+            - [ ] Markdown syntax validated
+            - [ ] Links tested
+            - [ ] Diagrams render correctly
+            - [ ] Cross-references verified
+            ```
+            
+            Create high-quality PR for seamless integration.
+
+# WORKFLOW CUSTOMIZATION GUIDE
+# ===============================
+#
+# To adapt this workflow for your repository:
+#
+# 1. ENVIRONMENT VARIABLES
+#    - Update DOCS_DIR, ADR_DIR, ARCHITECTURE_DIR for your structure
+#    - Adjust complexity thresholds based on your project needs
+#    - Configure automation behavior flags
+#
+# 2. TRIGGER CUSTOMIZATION
+#    - Modify 'on' section for your preferred triggers
+#    - Add custom workflow_dispatch inputs
+#    - Configure branch protection rules
+#
+# 3. PERMISSIONS
+#    - Ensure ANTHROPIC_API_KEY is added to repository secrets
+#    - Configure appropriate GitHub token permissions
+#    - Review and adjust job permissions as needed
+#
+# 4. QUALITY GATES
+#    - Add custom validation steps
+#    - Integrate with existing quality tools
+#    - Configure reviewer requirements
+#
+# 5. INTEGRATION
+#    - Connect with existing CI/CD pipelines
+#    - Add notification hooks (Slack, email, etc.)
+#    - Configure artifact storage and retention

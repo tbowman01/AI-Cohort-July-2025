@@ -1,0 +1,243 @@
+# Repository Configuration Template for Claude Automation
+# This file defines parameters and strategies for automated documentation generation
+# Copy and customize for each repository
+
+# REPOSITORY IDENTIFICATION
+repository:
+  name: "your-repository-name"
+  type: "web-app" # Options: web-app, library, cli-tool, mobile-app, microservice, monolith
+  domain: "general" # Options: fintech, healthcare, e-commerce, education, gaming, general
+  maturity: "production" # Options: prototype, mvp, production, maintenance
+
+# TECHNOLOGY STACK DETECTION HINTS
+# These help the analysis when automatic detection might be ambiguous
+tech_hints:
+  primary_language: "auto-detect" # Or specify: python, javascript, typescript, java, go, rust, etc.
+  frameworks:
+    frontend: [] # e.g., ["react", "vue", "angular"]
+    backend: [] # e.g., ["fastapi", "express", "django", "spring"]
+    mobile: [] # e.g., ["react-native", "flutter", "swift"]
+  databases: [] # e.g., ["postgresql", "mongodb", "redis", "sqlite"]
+  cloud_platforms: [] # e.g., ["aws", "gcp", "azure", "vercel"]
+
+# DOCUMENTATION CONFIGURATION
+documentation:
+  # Directory structure
+  base_dir: "docs"
+  adr_dir: "docs/adr"
+  architecture_dir: "docs/architecture"
+  
+  # Generation preferences
+  auto_generate:
+    prd: true # Generate Product Requirements Document
+    adr: true # Generate Architecture Decision Records
+    architecture: true # Generate architecture documentation
+    readme: true # Enhance README.md
+    api_docs: true # Generate API documentation
+    changelog: false # Generate/update CHANGELOG.md
+  
+  # Quality thresholds (1-10 scale)
+  thresholds:
+    min_complexity_for_prd: 3 # Generate PRD if complexity >= 3
+    min_complexity_for_adr: 4 # Generate ADRs if complexity >= 4
+    min_lines_for_architecture: 1000 # Generate arch docs if LOC >= 1000
+    readme_quality_threshold: 6 # Enhance README if current quality < 6
+
+# AUTOMATION BEHAVIOR
+automation:
+  # PR creation settings
+  create_pr: true
+  pr_auto_merge: false # Requires human approval
+  branch_prefix: "automated-docs"
+  
+  # Review requirements
+  require_human_review: true
+  auto_assign_reviewers: true
+  reviewer_suggestions: ["@team-leads", "@documentation-team"]
+  
+  # Notification settings
+  notify_on_completion: true
+  notification_channels: ["slack", "email"]
+
+# QUALITY CONTROL
+quality:
+  # Validation rules
+  validate_links: true
+  validate_markdown: true
+  validate_diagrams: true
+  check_spelling: false
+  
+  # Content standards
+  tone: "professional" # Options: professional, casual, technical
+  audience: "developers" # Options: developers, business, mixed
+  detail_level: "comprehensive" # Options: brief, standard, comprehensive
+  
+  # Formatting preferences
+  diagram_tool: "mermaid" # Options: mermaid, plantuml, both
+  code_style: "repository-default" # Use existing code style
+  heading_style: "atx" # Options: atx (#), setext (underline)
+
+# CUSTOM PROMPTS AND TEMPLATES
+# Override default prompts for specific sections
+custom_prompts:
+  prd_focus: |
+    Focus on business value and user experience.
+    Include competitive analysis and market positioning.
+    Emphasize ROI and success metrics.
+  
+  adr_style: |
+    Use data-driven decision rationale.
+    Include performance benchmarks where applicable.
+    Reference industry best practices.
+  
+  architecture_emphasis: |
+    Prioritize scalability and maintainability.
+    Include security considerations throughout.
+    Document monitoring and observability patterns.
+
+# INTEGRATION SETTINGS
+integrations:
+  # External tools
+  jira_integration: false
+  confluence_sync: false
+  slack_notifications: false
+  
+  # CI/CD integration
+  trigger_on_release: true
+  update_on_major_changes: true
+  sync_with_deployment: false
+
+# REPOSITORY-SPECIFIC CUSTOMIZATIONS
+# Add custom sections or emphasis areas
+custom_sections:
+  - name: "Security Architecture"
+    required_for_types: ["fintech", "healthcare"]
+    template: "security-arch-template.md"
+  
+  - name: "Performance Benchmarks"
+    required_for_complexity: 7
+    auto_generate: true
+  
+  - name: "Integration Guides"
+    required_for_types: ["library", "api"]
+    include_examples: true
+
+# EXCLUSION RULES
+# Files and directories to ignore during analysis
+exclusions:
+  directories:
+    - "node_modules"
+    - ".git"
+    - "vendor"
+    - "__pycache__"
+    - ".env"
+    - "dist"
+    - "build"
+  
+  file_patterns:
+    - "*.log"
+    - "*.tmp"
+    - "*.cache"
+    - ".DS_Store"
+  
+  documentation_files:
+    - "CONTRIBUTING.md" # Don't auto-generate if exists
+    - "CODE_OF_CONDUCT.md"
+    - "SECURITY.md"
+
+# PERFORMANCE SETTINGS
+performance:
+  max_analysis_time: 30 # minutes
+  max_generation_time: 45 # minutes
+  parallel_jobs: 4
+  cache_analysis: true
+  incremental_updates: true
+
+# WORKFLOW TRIGGERS
+# Customize when automation should run
+triggers:
+  # Automatic triggers
+  on_push_to_main: true
+  on_pull_request: true
+  on_release: true
+  on_schedule: false # Set to cron expression if needed
+  
+  # Manual triggers
+  workflow_dispatch: true
+  issue_labels: ["documentation", "architecture-review"]
+  pr_labels: ["needs-docs"]
+
+# FEATURE FLAGS
+# Enable/disable specific features
+features:
+  ai_powered_analysis: true
+  auto_link_validation: true
+  diagram_generation: true
+  code_example_extraction: true
+  cross_reference_generation: true
+  version_history_tracking: false
+  multi_language_support: false
+
+# ERROR HANDLING
+error_handling:
+  continue_on_partial_failure: true
+  retry_failed_generations: 2
+  fallback_to_templates: true
+  notify_on_failure: true
+
+# METRICS AND MONITORING
+metrics:
+  track_generation_time: true
+  track_quality_scores: true
+  track_user_engagement: false
+  export_metrics: true
+  metrics_retention_days: 90
+
+# EXAMPLE REPOSITORY CONFIGURATIONS
+# ===================================
+
+examples:
+  web_application:
+    type: "web-app"
+    tech_hints:
+      frameworks:
+        frontend: ["react", "typescript"]
+        backend: ["fastapi", "python"]
+      databases: ["postgresql", "redis"]
+    documentation:
+      auto_generate:
+        prd: true
+        adr: true
+        architecture: true
+        api_docs: true
+    quality:
+      detail_level: "comprehensive"
+      audience: "mixed"
+  
+  python_library:
+    type: "library"
+    tech_hints:
+      primary_language: "python"
+    documentation:
+      auto_generate:
+        prd: false
+        adr: true
+        architecture: false
+        api_docs: true
+    quality:
+      detail_level: "standard"
+      audience: "developers"
+  
+  microservice:
+    type: "microservice"
+    documentation:
+      thresholds:
+        min_complexity_for_adr: 3
+      auto_generate:
+        architecture: true
+        api_docs: true
+    custom_sections:
+      - name: "Service Interface Documentation"
+        auto_generate: true
+      - name: "Deployment Guide"
+        auto_generate: true
