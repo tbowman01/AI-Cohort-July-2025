@@ -22,28 +22,28 @@ AutoDevHub implements a modern, scalable architecture designed for high performa
 
 ## 🏗️ Architecture Sections
 
-### [📊 System Overview](/docs/architecture/system-overview/)
+### [📊 System Overview](/docs/architecture/system-overview.html)
 High-level system architecture with component relationships:
 - Client-server architecture patterns
 - Service layer organization
 - Data flow diagrams
 - Integration points
 
-### [🔌 API Specification](/docs/architecture/api-specification/)
+### [🔌 API Specification](/docs/architecture/api-specification.html)
 Comprehensive RESTful API documentation:
 - Endpoint specifications
 - Request/response schemas
 - Authentication patterns
 - Error handling strategies
 
-### [🗄️ Database Schema](/docs/architecture/database-schema/)
+### [🗄️ Database Schema](/docs/architecture/database-schema.html)
 Complete data model documentation:
 - Entity relationship diagrams
 - Table specifications
 - Data flow patterns
 - Migration strategies
 
-### [🚀 Deployment Architecture](/docs/architecture/deployment-architecture/)
+### [🚀 Deployment Architecture](/docs/architecture/deployment-architecture.html)
 Infrastructure and deployment strategies:
 - Container orchestration
 - Scaling patterns

@@ -65,8 +65,8 @@ Capstone project presentation resources:
     <h3>🚀 Operations</h3>
     <ul>
       <li><a href="/docs/development/deployment/">Deployment Guide</a></li>
-      <li><a href="/docs/architecture/deployment-architecture/">Infrastructure</a></li>
-      <li><a href="/docs/development/monitoring/">Monitoring Setup</a></li>
+      <li><a href="/docs/architecture/deployment-architecture.html">Infrastructure</a></li>
+      <li><a href="/docs/development/monitoring.html">Monitoring Setup</a></li>
     </ul>
   </div>
   

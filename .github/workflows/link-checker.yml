@@ -1,0 +1,156 @@
+name: Documentation Link Checker
+
+on:
+  push:
+    branches: [ main, develop ]
+    paths:
+      - '**.md'
+      - 'docs/**'
+      - '_config.yml'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - '**.md'
+      - 'docs/**'
+      - '_config.yml'
+  workflow_dispatch:
+    inputs:
+      check_external:
+        description: 'Check external links (slower but more thorough)'
+        required: false
+        default: 'false'
+        type: boolean
+      target_path:
+        description: 'Specific path to check (leave empty for all)'
+        required: false
+        default: ''
+        type: string
+
+jobs:
+  link-check:
+    runs-on: ubuntu-latest
+    name: Check documentation links
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.2'
+          bundler-cache: true
+      
+      - name: Build Jekyll site
+        run: |
+          echo "Building Jekyll site for link checking..."
+          bundle exec jekyll build --baseurl "/AI-Cohort-July-2025"
+        env:
+          JEKYLL_ENV: production
+      
+      - name: Check internal links
+        uses: gaurav-nelson/github-action-markdown-link-check@v1
+        with:
+          use-quiet-mode: 'no'
+          use-verbose-mode: 'yes'
+          config-file: '.github/markdown-link-check-config.json'
+          folder-path: ${{ github.event.inputs.target_path || 'docs/' }}
+          max-depth: 3
+          file-path: './README.md, ./CLAUDE.md, ./index.md'
+      
+      - name: Check external links (if requested)
+        if: github.event.inputs.check_external == 'true'
+        uses: gaurav-nelson/github-action-markdown-link-check@v1
+        with:
+          use-quiet-mode: 'no'
+          use-verbose-mode: 'yes'
+          config-file: '.github/markdown-link-check-external.json'
+          folder-path: ${{ github.event.inputs.target_path || 'docs/' }}
+          max-depth: 3
+      
+      - name: Create issue for broken links
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const issue = await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: '🔗 Broken Documentation Links Detected',
+              body: `## Broken Links Found
+              
+              The automated link checker has detected broken links in the documentation.
+              
+              **Details:**
+              - **Workflow Run**: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+              - **Commit**: ${{ github.sha }}
+              - **Branch**: ${{ github.ref }}
+              - **Triggered by**: ${{ github.event_name }}
+              
+              **Next Steps:**
+              1. Review the workflow logs above for specific broken links
+              2. Fix or redirect broken internal links
+              3. Update external links or add them to the ignore list
+              4. Re-run this workflow to verify fixes
+              
+              **Quick Fix Commands:**
+              \`\`\`bash
+              # Check links locally
+              npm install -g markdown-link-check
+              find docs/ -name "*.md" -exec markdown-link-check {} \\;
+              
+              # Update under-construction redirects
+              # See docs/under-construction.md for fallback page
+              \`\`\`
+              
+              ---
+              *This issue was automatically created by the link checker workflow.*`,
+              labels: ['documentation', 'bug', 'automated']
+            });
+            
+            console.log('Created issue:', issue.data.html_url);
+
+      - name: Comment on PR (if PR context)
+        if: failure() && github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `## 🔗 Link Check Failed
+              
+              This PR contains broken documentation links. Please review and fix them before merging.
+              
+              **Workflow Details:** ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+              
+              **Common Fixes:**
+              - Update relative paths (use \`.html\` extensions for Jekyll)
+              - Redirect missing pages to \`/docs/under-construction/\`
+              - Check file paths and ensure referenced files exist
+              `
+            });
+
+      - name: Generate link report
+        if: always()
+        run: |
+          echo "## Link Check Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Repository**: ${{ github.repository }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Branch**: ${{ github.ref }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Commit**: ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Check External Links**: ${{ github.event.inputs.check_external || 'false' }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Target Path**: ${{ github.event.inputs.target_path || 'all documentation' }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          if [ "${{ job.status }}" == "success" ]; then
+            echo "✅ **Result**: All links are working correctly!" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ **Result**: Broken links detected. Check the logs above for details." >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "**Next Steps:**" >> $GITHUB_STEP_SUMMARY
+            echo "1. Review broken links in the workflow logs" >> $GITHUB_STEP_SUMMARY
+            echo "2. Fix internal links or redirect to under-construction page" >> $GITHUB_STEP_SUMMARY
+            echo "3. Update external links or add to ignore list" >> $GITHUB_STEP_SUMMARY
+          fi

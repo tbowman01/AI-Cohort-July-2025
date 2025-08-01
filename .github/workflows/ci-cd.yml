@@ -6,6 +6,22 @@ on:
   pull_request:
     branches: [ main, develop ]
   workflow_dispatch:
+    inputs:
+      run_tests:
+        description: 'Run all tests (frontend and backend)'
+        required: false
+        default: 'true'
+        type: boolean
+      run_build:
+        description: 'Run build and release steps'
+        required: false
+        default: 'false'
+        type: boolean
+      force_docker_build:
+        description: 'Force Docker build even on non-main branch'
+        required: false
+        default: 'false'
+        type: boolean
 
 env:
   NODE_VERSION: '20'
@@ -15,6 +31,7 @@ jobs:
   test-frontend:
     name: Test Frontend
     runs-on: ubuntu-latest
+    if: github.event.inputs.run_tests != 'false'
     defaults:
       run:
         working-directory: ./frontend
@@ -44,6 +61,7 @@ jobs:
   test-backend:
     name: Test Backend
     runs-on: ubuntu-latest
+    if: github.event.inputs.run_tests != 'false'
     defaults:
       run:
         working-directory: ./backend
@@ -89,7 +107,9 @@ jobs:
     name: Build and Release
     needs: [test-frontend, test-backend]
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    if: |
+      (github.ref == 'refs/heads/main' && github.event_name == 'push') ||
+      (github.event_name == 'workflow_dispatch' && github.event.inputs.run_build == 'true')
     
     steps:
     - uses: actions/checkout@v4
@@ -139,7 +159,9 @@ jobs:
     name: Docker Build
     needs: [test-frontend, test-backend]
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main'
+    if: |
+      github.ref == 'refs/heads/main' ||
+      (github.event_name == 'workflow_dispatch' && github.event.inputs.force_docker_build == 'true')
     
     steps:
     - uses: actions/checkout@v4
