@@ -452,4 +452,4 @@ npx @openapitools/openapi-generator-cli generate \
 
 ---
 
-*For implementation details, see [System Overview]({% link architecture/system-overview.md %}). For database structure, see [Database Schema]({% link architecture/database-schema.md %}).*
+*For implementation details, see [System Overview]({% link docs/architecture/system-overview.md %}). For database structure, see [Database Schema]({% link docs/architecture/database-schema.md %}).*

@@ -8,136 +8,129 @@ nav_order: 1
 # System Overview
 {: .fs-9 }
 
-High-level architecture and system components
+High-level architecture and system design of AutoDevHub
 {: .fs-6 .fw-300 }
 
 ---
 
-## Architecture Diagram
+## Architecture Overview
 
-```mermaid
-graph TB
-    subgraph "Client Layer"
-        WEB[Web Interface<br/>React Frontend]
-        CLI[CLI Interface<br/>Command Line Tools]
-        API_CLIENT[API Clients<br/>External Integrations]
-    end
-    
-    subgraph "API Gateway Layer"
-        GATEWAY[API Gateway<br/>FastAPI Router]
-        AUTH[Authentication<br/>JWT & OAuth]
-        RATE_LIMIT[Rate Limiting<br/>Request Throttling]
-    end
-    
-    subgraph "Application Services"
-        STORY_SVC[Story Generator<br/>AI Story Creation]
-        DOC_SVC[Documentation Service<br/>Auto Documentation]
-        WORKFLOW_SVC[Workflow Engine<br/>DevOps Automation]
-        NOTIFICATION_SVC[Notification Service<br/>Event Broadcasting]
-    end
-    
-    subgraph "AI & External Services"
-        CLAUDE[Claude AI<br/>Story Generation]
-        GITHUB_API[GitHub API<br/>Repository Management]
-        CI_CD[GitHub Actions<br/>Deployment Pipeline]
-    end
-    
-    subgraph "Data Layer"
-        SQLITE[(SQLite Database<br/>Primary Data Store)]
-        REDIS[(Redis Cache<br/>Session & Performance)]
-        FILES[File Storage<br/>Documentation & Assets)]
-    end
-    
-    %% Client connections
-    WEB --> GATEWAY
-    CLI --> GATEWAY
-    API_CLIENT --> GATEWAY
-    
-    %% API Gateway routing
-    GATEWAY --> AUTH
-    GATEWAY --> RATE_LIMIT
-    GATEWAY --> STORY_SVC
-    GATEWAY --> DOC_SVC
-    GATEWAY --> WORKFLOW_SVC
-    
-    %% Service dependencies
-    STORY_SVC --> CLAUDE
-    STORY_SVC --> SQLITE
-    DOC_SVC --> GITHUB_API
-    DOC_SVC --> FILES
-    WORKFLOW_SVC --> CI_CD
-    WORKFLOW_SVC --> NOTIFICATION_SVC
-    
-    %% Data layer connections
-    STORY_SVC --> REDIS
-    AUTH --> REDIS
-    DOC_SVC --> SQLITE
-    WORKFLOW_SVC --> SQLITE
-```
+AutoDevHub is an AI-powered DevOps tracker that streamlines project management by automatically generating user stories based on project requirements.
 
-## System Components
+### Key Components
 
-### Frontend Layer
-- **React Application**: Modern SPA with Vite build system
-- **Component Architecture**: Reusable, testable components
-- **State Management**: Context API for global state
-- **Responsive Design**: Mobile-first, accessible UI
+1. **Frontend Application**
+   - React-based single-page application
+   - Vite for fast development and building
+   - Modern, responsive UI design
+   - Real-time story generation interface
 
-### Backend Layer
-- **FastAPI Framework**: High-performance async API
-- **SQLite Database**: Zero-configuration, reliable storage
-- **Redis Cache**: Session management and performance optimization
-- **AI Integration**: Claude API for intelligent story generation
+2. **Backend API**
+   - FastAPI framework for high performance
+   - RESTful API design
+   - OpenAPI/Swagger documentation
+   - Async request handling
 
-### External Services
-- **Claude AI**: Primary AI service for text generation
-- **GitHub API**: Repository management and CI/CD integration
-- **Email Services**: Notification and communication
+3. **AI Integration**
+   - OpenAI GPT integration for story generation
+   - Intelligent context understanding
+   - Automated acceptance criteria generation
+   - Story point estimation
 
-## Data Flow
-
-### User Story Generation Flow
-1. User submits feature description via web interface
-2. API Gateway validates request and authenticates user
-3. Story Service processes request with Claude AI
-4. Generated story is cached and stored in database
-5. Response is returned to user interface
-
-### Documentation Update Flow
-1. Code changes trigger GitHub webhooks
-2. Documentation Service analyzes changes
-3. AI generates updated documentation
-4. Documentation is committed to repository
-5. GitHub Pages deploys updated documentation
-
-## Scalability Considerations
-
-### Horizontal Scaling
-- Stateless API design enables multiple instances
-- Database read replicas for improved performance
-- Redis cluster for distributed caching
-- CDN for static asset delivery
-
-### Performance Optimization
-- Async processing for AI operations
-- Connection pooling for database efficiency
-- Response caching for frequently accessed data
-- Lazy loading for frontend components
-
-## Security Architecture
-
-### Authentication & Authorization
-- JWT tokens with refresh token rotation
-- Role-based access control (RBAC)
-- API key management for external integrations
-- OAuth integration for social login
-
-### Data Protection
-- HTTPS encryption for all communications
-- Database encryption at rest
-- Input validation and sanitization
-- SQL injection prevention
+4. **Database Layer**
+   - PostgreSQL for reliable data storage
+   - SQLAlchemy ORM for database operations
+   - Migration support with Alembic
+   - Optimized query performance
 
 ---
 
-*For detailed component specifications, see [API Specification]({% link architecture/api-specification.md %}) and [Database Schema]({% link architecture/database-schema.md %}).*
+## System Architecture Diagram
+
+```
+┌─────────────────┐     ┌─────────────────┐     ┌─────────────────┐
+│                 │     │                 │     │                 │
+│  React Frontend │────▶│  FastAPI Backend│────▶│   PostgreSQL    │
+│                 │     │                 │     │                 │
+└─────────────────┘     └────────┬────────┘     └─────────────────┘
+                                 │
+                                 ▼
+                        ┌─────────────────┐
+                        │                 │
+                        │   OpenAI API    │
+                        │                 │
+                        └─────────────────┘
+```
+
+---
+
+## Data Flow
+
+1. **User Input**: Users enter project requirements through the React frontend
+2. **API Request**: Frontend sends structured data to FastAPI backend
+3. **AI Processing**: Backend processes request with OpenAI integration
+4. **Data Storage**: Generated stories are stored in PostgreSQL
+5. **Response**: Formatted stories returned to frontend for display
+
+---
+
+## Technology Stack
+
+### Frontend
+- **Framework**: React 18.x
+- **Build Tool**: Vite 7.x
+- **Styling**: CSS Modules
+- **State Management**: React Hooks
+- **HTTP Client**: Fetch API
+
+### Backend
+- **Framework**: FastAPI 0.115.x
+- **Language**: Python 3.12
+- **ORM**: SQLAlchemy 2.x
+- **Server**: Uvicorn ASGI
+- **Validation**: Pydantic
+
+### Infrastructure
+- **Database**: PostgreSQL 15
+- **Container**: Docker & Docker Compose
+- **CI/CD**: GitHub Actions
+- **Documentation**: Jekyll & GitHub Pages
+
+---
+
+## Security Features
+
+1. **Authentication**: JWT-based authentication (planned)
+2. **Input Validation**: Pydantic models for request validation
+3. **CORS Protection**: Configured CORS middleware
+4. **Environment Variables**: Secure configuration management
+5. **SQL Injection Prevention**: ORM-based queries
+
+---
+
+## Deployment Architecture
+
+### Development Environment
+- Local Docker Compose setup
+- Hot reloading for frontend and backend
+- PostgreSQL container for database
+
+### Production Environment (Planned)
+- Frontend: Static hosting (Vercel/Netlify)
+- Backend: Cloud platform (AWS/GCP/Azure)
+- Database: Managed PostgreSQL service
+- CDN: CloudFlare for static assets
+
+---
+
+## Performance Considerations
+
+1. **API Response Time**: < 2 seconds for story generation
+2. **Database Queries**: Indexed for optimal performance
+3. **Caching**: Redis for frequently accessed data (planned)
+4. **Rate Limiting**: API rate limiting for fair usage
+5. **Monitoring**: Application performance monitoring (planned)
+
+---
+
+*For API details, see [API Specification]({% link docs/architecture/api-specification.md %}). For database design, see [Database Schema]({% link docs/architecture/database-schema.md %}).*
