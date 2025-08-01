@@ -450,6 +450,349 @@ describe('StoryGenerator Component', () => {
     })
   })
 
+  describe('List Stories Functionality', () => {
+    it('lists existing stories when List Stories button is clicked', async () => {
+      const mockStoriesResponse = {
+        stories: [
+          generateMockStoryResponse({ 
+            story_id: 'story-1',
+            title: 'First Story',
+            gherkin: 'Feature: First Feature'
+          }),
+          generateMockStoryResponse({ 
+            story_id: 'story-2',
+            title: 'Second Story', 
+            gherkin: 'Feature: Second Feature'
+          })
+        ],
+        total_count: 2,
+        page: 1,
+        page_size: 10,
+        has_next: false,
+        has_previous: false
+      }
+      
+      global.fetch = mockFetch(mockStoriesResponse)
+      
+      render(<StoryGenerator />)
+      
+      const listButton = screen.getByRole('button', { name: /list stories/i })
+      await user.click(listButton)
+      
+      await waitFor(() => {
+        expect(screen.getByText(/generated user stories/i)).toBeInTheDocument()
+        expect(screen.getByText(/first story/i)).toBeInTheDocument()
+        expect(screen.getByText(/second story/i)).toBeInTheDocument()
+      })
+      
+      expect(global.fetch).toHaveBeenCalledWith(
+        'http://localhost:8000/api/v1/stories?page=1&page_size=10',
+        {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      )
+    })
+
+    it('shows loading state during story list fetch', async () => {
+      global.fetch = vi.fn().mockImplementation(() => 
+        new Promise(resolve => {
+          setTimeout(() => {
+            resolve({
+              ok: true,
+              status: 200,
+              json: () => Promise.resolve({
+                stories: [],
+                total_count: 0,
+                page: 1,
+                page_size: 10,
+                has_next: false,
+                has_previous: false
+              })
+            })
+          }, 100)
+        })
+      )
+      
+      render(<StoryGenerator />)
+      
+      const listButton = screen.getByRole('button', { name: /list stories/i })
+      await user.click(listButton)
+      
+      // Should show loading immediately
+      expect(listButton).toBeDisabled()
+      expect(listButton).toHaveTextContent(/loading stories/i)
+      
+      // Wait for completion
+      await waitFor(() => {
+        expect(listButton).not.toBeDisabled()
+        expect(listButton).toHaveTextContent(/list stories/i)
+      }, { timeout: 1000 })
+    })
+
+    it('handles error when listing stories fails', async () => {
+      global.fetch = mockFetch(
+        { error: true, message: 'Failed to fetch stories' },
+        { status: 500, ok: false }
+      )
+      
+      render(<StoryGenerator />)
+      
+      const listButton = screen.getByRole('button', { name: /list stories/i })
+      await user.click(listButton)
+      
+      await waitFor(() => {
+        expectErrorMessage('Failed to fetch stories: Failed to fetch stories')
+      })
+    })
+
+    it('displays empty state when no stories exist', async () => {
+      const emptyResponse = {
+        stories: [],
+        total_count: 0,
+        page: 1,
+        page_size: 10,
+        has_next: false,
+        has_previous: false
+      }
+      
+      global.fetch = mockFetch(emptyResponse)
+      
+      render(<StoryGenerator />)
+      
+      const listButton = screen.getByRole('button', { name: /list stories/i })
+      await user.click(listButton)
+      
+      await waitFor(() => {
+        expect(screen.queryByText(/generated user stories/i)).not.toBeInTheDocument()
+      })
+    })
+
+    it('prevents multiple simultaneous list requests', async () => {
+      let requestCount = 0
+      global.fetch = vi.fn().mockImplementation(() => {
+        requestCount++
+        return new Promise(resolve => {
+          setTimeout(() => {
+            resolve({
+              ok: true,
+              status: 200,
+              json: () => Promise.resolve({
+                stories: [],
+                total_count: 0,
+                page: 1,
+                page_size: 10,
+                has_next: false,
+                has_previous: false
+              })
+            })
+          }, 50)
+        })
+      })
+      
+      render(<StoryGenerator />)
+      
+      const listButton = screen.getByRole('button', { name: /list stories/i })
+      
+      // Rapid clicks
+      await user.click(listButton)
+      await user.click(listButton)
+      await user.click(listButton)
+      
+      await waitFor(() => {
+        expect(listButton).not.toBeDisabled()
+      })
+      
+      // Should only make one request
+      expect(requestCount).toBe(1)
+    })
+  })
+
+  describe('Pagination Functionality', () => {
+    const mockPaginatedResponse = (page, hasNext, hasPrevious) => ({
+      stories: [
+        generateMockStoryResponse({ 
+          story_id: `story-page-${page}`,
+          title: `Story from page ${page}`
+        })
+      ],
+      total_count: 25,
+      page: page,
+      page_size: 10,
+      has_next: hasNext,
+      has_previous: hasPrevious
+    })
+
+    it('shows pagination controls when there are multiple pages', async () => {
+      global.fetch = mockFetch(mockPaginatedResponse(1, true, false))
+      
+      render(<StoryGenerator />)
+      
+      const listButton = screen.getByRole('button', { name: /list stories/i })
+      await user.click(listButton)
+      
+      await waitFor(() => {
+        expect(screen.getByText(/page 1 of 3/i)).toBeInTheDocument()
+        expect(screen.getByRole('button', { name: /previous/i })).toBeInTheDocument()
+        expect(screen.getByRole('button', { name: /next/i })).toBeInTheDocument()
+      })
+    })
+
+    it('disables Previous button on first page', async () => {
+      global.fetch = mockFetch(mockPaginatedResponse(1, true, false))
+      
+      render(<StoryGenerator />)
+      
+      await user.click(screen.getByRole('button', { name: /list stories/i }))
+      
+      await waitFor(() => {
+        const prevButton = screen.getByRole('button', { name: /previous/i })
+        expect(prevButton).toBeDisabled()
+        expect(screen.getByRole('button', { name: /next/i })).not.toBeDisabled()
+      })
+    })
+
+    it('disables Next button on last page', async () => {
+      global.fetch = mockFetch(mockPaginatedResponse(3, false, true))
+      
+      render(<StoryGenerator />)
+      
+      await user.click(screen.getByRole('button', { name: /list stories/i }))
+      
+      await waitFor(() => {
+        const nextButton = screen.getByRole('button', { name: /next/i })
+        expect(nextButton).toBeDisabled()
+        expect(screen.getByRole('button', { name: /previous/i })).not.toBeDisabled()
+      })
+    })
+
+    it('navigates to next page when Next button is clicked', async () => {
+      let currentPage = 1
+      global.fetch = vi.fn().mockImplementation((url) => {
+        if (url.includes('page=2')) {
+          currentPage = 2
+          return Promise.resolve({
+            ok: true,
+            status: 200,
+            json: () => Promise.resolve(mockPaginatedResponse(2, true, true))
+          })
+        }
+        return Promise.resolve({
+          ok: true,
+          status: 200,
+          json: () => Promise.resolve(mockPaginatedResponse(1, true, false))
+        })
+      })
+      
+      render(<StoryGenerator />)
+      
+      // Load first page
+      await user.click(screen.getByRole('button', { name: /list stories/i }))
+      
+      await waitFor(() => {
+        expect(screen.getByText(/page 1 of 3/i)).toBeInTheDocument()
+      })
+      
+      // Click next
+      const nextButton = screen.getByRole('button', { name: /next/i })
+      await user.click(nextButton)
+      
+      await waitFor(() => {
+        expect(screen.getByText(/page 2 of 3/i)).toBeInTheDocument()
+        expect(screen.getByText(/story from page 2/i)).toBeInTheDocument()
+      })
+      
+      expect(global.fetch).toHaveBeenLastCalledWith(
+        'http://localhost:8000/api/v1/stories?page=2&page_size=10',
+        {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      )
+    })
+
+    it('navigates to previous page when Previous button is clicked', async () => {
+      global.fetch = vi.fn().mockImplementation((url) => {
+        if (url.includes('page=1')) {
+          return Promise.resolve({
+            ok: true,
+            status: 200,
+            json: () => Promise.resolve(mockPaginatedResponse(1, true, false))
+          })
+        }
+        return Promise.resolve({
+          ok: true,
+          status: 200,
+          json: () => Promise.resolve(mockPaginatedResponse(2, true, true))
+        })
+      })
+      
+      render(<StoryGenerator />)
+      
+      // Simulate being on page 2
+      await user.click(screen.getByRole('button', { name: /list stories/i }))
+      
+      // Mock being on page 2 by updating the response
+      global.fetch = vi.fn().mockImplementation((url) => {
+        if (url.includes('page=1')) {
+          return Promise.resolve({
+            ok: true,
+            status: 200,
+            json: () => Promise.resolve(mockPaginatedResponse(1, true, false))
+          })
+        }
+        return Promise.resolve({
+          ok: true,
+          status: 200,
+          json: () => Promise.resolve(mockPaginatedResponse(2, true, true))
+        })
+      })
+      
+      // Manually trigger page 2 load to simulate being on page 2
+      await user.click(screen.getByRole('button', { name: /list stories/i }))
+      
+      await waitFor(() => {
+        expect(screen.getByText(/page 2 of 3/i)).toBeInTheDocument()
+      })
+      
+      // Click previous
+      const prevButton = screen.getByRole('button', { name: /previous/i })
+      await user.click(prevButton)
+      
+      await waitFor(() => {
+        expect(screen.getByText(/page 1 of 3/i)).toBeInTheDocument()
+      })
+    })
+
+    it('hides pagination controls when only one page exists', async () => {
+      const singlePageResponse = {
+        stories: [generateMockStoryResponse()],
+        total_count: 5,
+        page: 1,
+        page_size: 10,
+        has_next: false,
+        has_previous: false
+      }
+      
+      global.fetch = mockFetch(singlePageResponse)
+      
+      render(<StoryGenerator />)
+      
+      await user.click(screen.getByRole('button', { name: /list stories/i }))
+      
+      await waitFor(() => {
+        expect(screen.getByText(/generated user stories/i)).toBeInTheDocument()
+        expect(screen.queryByText(/page/i)).not.toBeInTheDocument()
+        expect(screen.queryByRole('button', { name: /previous/i })).not.toBeInTheDocument()
+        expect(screen.queryByRole('button', { name: /next/i })).not.toBeInTheDocument()
+      })
+    })
+  })
+
   describe('Edge Cases', () => {
     it('handles empty API response gracefully', async () => {
       global.fetch = mockFetch({})
