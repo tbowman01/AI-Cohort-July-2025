@@ -27,6 +27,36 @@ class Settings(BaseSettings):
         case_sensitive=False,
         extra="ignore"
     )
+
+    api_host: str = Field(
+        default="localhost",
+        description="Host for the FastAPI application"
+    )
+    api_port: str = Field(
+        default="8000",
+        description="Port for the FastAPI application"
+    )
+
+    algorithm: str = Field(
+        default="gpt-4",
+        description="AI algorithm to use for story generation"
+    )
+    anthropic_api_key: str = Field(
+        default=os.getenv("ANTHROPIC_API_KEY", ""),
+        description="API key for Anthropic AI service"
+    )
+    allowed_origins: str = Field(
+        default="http://localhost:3000,http://localhost:5173",
+        description="Comma-separated list of allowed CORS origins"
+    )
+    phase1_status: str = Field(
+        default="completed",
+        description="Phase 1 status of the project"
+    )
+    phase1_completion_date: str = Field(
+        default="2025-07-31",
+        description="Expected completion date for Phase 1"
+    )
     
     # Application Information
     app_name: str = Field(default="AutoDevHub", description="Application name")
@@ -151,7 +181,7 @@ class Settings(BaseSettings):
         Returns:
             SQLite database URL with aiosqlite driver
         """
-        return f"sqlite+aiosqlite:///{self.database_file}"
+        return "sqlite:///./autodevhub.db"
     
 
     @property

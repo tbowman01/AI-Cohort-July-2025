@@ -1,6 +1,6 @@
 {
   "errors": [],
-  "generated_at": "2025-07-31T18:53:04Z",
+  "generated_at": "2025-08-01T10:01:13Z",
   "metrics": {
     "./backend/__init__.py": {
       "CONFIDENCE.HIGH": 0,
@@ -301,7 +301,7 @@
       "nosec": 0,
       "skipped_tests": 0
     },
-    "./frontend/node_modules/flatted/python/flatted.py": {
+    "./node_modules/shell-quote/print.py": {
       "CONFIDENCE.HIGH": 0,
       "CONFIDENCE.LOW": 0,
       "CONFIDENCE.MEDIUM": 0,
@@ -310,20 +310,7 @@
       "SEVERITY.LOW": 0,
       "SEVERITY.MEDIUM": 0,
       "SEVERITY.UNDEFINED": 0,
-      "loc": 103,
-      "nosec": 0,
-      "skipped_tests": 0
-    },
-    "./node_modules/flatted/python/flatted.py": {
-      "CONFIDENCE.HIGH": 0,
-      "CONFIDENCE.LOW": 0,
-      "CONFIDENCE.MEDIUM": 0,
-      "CONFIDENCE.UNDEFINED": 0,
-      "SEVERITY.HIGH": 0,
-      "SEVERITY.LOW": 0,
-      "SEVERITY.MEDIUM": 0,
-      "SEVERITY.UNDEFINED": 0,
-      "loc": 103,
+      "loc": 2,
       "nosec": 0,
       "skipped_tests": 0
     },
@@ -336,7 +323,7 @@
       "SEVERITY.LOW": 431,
       "SEVERITY.MEDIUM": 3,
       "SEVERITY.UNDEFINED": 0,
-      "loc": 5710,
+      "loc": 5506,
       "nosec": 0,
       "skipped_tests": 0
     }
