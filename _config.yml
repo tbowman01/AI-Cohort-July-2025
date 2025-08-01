@@ -58,6 +58,8 @@ menu:
         url: /docs/presentation/slides.html
       - title: Demo Script
         url: /docs/presentation/demo-script.html
+  - title: Contact & Support
+    url: /docs/contacts/
 
 # Hydejack theme settings
 hydejack:

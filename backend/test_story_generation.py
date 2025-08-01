@@ -30,32 +30,32 @@ async def test_story_generator():
             "description": "User authentication with social login",
             "expected_type": "authentication",
             "story_type": StoryType.FEATURE,
-            "priority": Priority.HIGH
+            "priority": Priority.HIGH,
         },
         {
             "description": "File upload functionality for documents",
             "expected_type": "file_management",
             "story_type": StoryType.STORY,
-            "priority": Priority.MEDIUM
+            "priority": Priority.MEDIUM,
         },
         {
             "description": "Search functionality with filters and sorting",
             "expected_type": "search",
             "story_type": StoryType.STORY,
-            "priority": Priority.MEDIUM
+            "priority": Priority.MEDIUM,
         },
         {
             "description": "Admin dashboard for managing users and roles",
             "expected_type": "crud",
             "story_type": StoryType.EPIC,
-            "priority": Priority.HIGH
+            "priority": Priority.HIGH,
         },
         {
             "description": "Real-time notifications for chat messages",
             "expected_type": "notification",
             "story_type": StoryType.STORY,
-            "priority": Priority.LOW
-        }
+            "priority": Priority.LOW,
+        },
     ]
 
     results = []
@@ -66,30 +66,30 @@ async def test_story_generator():
         try:
             # Generate story
             result = generator.generate_gherkin_story(
-                test_case['description'],
-                test_case['story_type'],
-                test_case['priority']
+                test_case["description"], test_case["story_type"], test_case["priority"]
             )
 
             # Validate results
-            assert result['story_id'], "Story ID should be generated"
-            assert result['gherkin_content'], "Gherkin content should be generated"
-            assert result['acceptance_criteria'], "Acceptance criteria should be generated"
-            assert result['estimated_effort'] >= 1, "Effort should be at least 1"
-            assert result['feature_type'], "Feature type should be detected"
+            assert result["story_id"], "Story ID should be generated"
+            assert result["gherkin_content"], "Gherkin content should be generated"
+            assert result[
+                "acceptance_criteria"
+            ], "Acceptance criteria should be generated"
+            assert result["estimated_effort"] >= 1, "Effort should be at least 1"
+            assert result["feature_type"], "Feature type should be detected"
 
             # Validate Gherkin syntax
             is_valid, issues = generator.validate_gherkin_syntax(
-                result['gherkin_content'])
+                result["gherkin_content"]
+            )
 
             print(f"✅ Story ID: {result['story_id']}")
             print(
-                f"✅ Feature Type: {result['feature_type']} (expected: {test_case['expected_type']})")
-            print(
-                f"✅ Estimated Effort: {result['estimated_effort']} story points")
+                f"✅ Feature Type: {result['feature_type']} (expected: {test_case['expected_type']})"
+            )
+            print(f"✅ Estimated Effort: {result['estimated_effort']} story points")
             print(f"✅ Valid Gherkin: {is_valid}")
-            print(
-                f"✅ Acceptance Criteria: {len(result['acceptance_criteria'])} items")
+            print(f"✅ Acceptance Criteria: {len(result['acceptance_criteria'])} items")
 
             if not is_valid:
                 print(f"❌ Gherkin Issues: {issues}")
@@ -97,30 +97,34 @@ async def test_story_generator():
             # Display generated story
             print("\nGenerated Gherkin Story:")
             print("-" * 40)
-            print(result['gherkin_content'])
+            print(result["gherkin_content"])
             print("-" * 40)
 
-            results.append({
-                'test_case': i,
-                'description': test_case['description'],
-                'success': True,
-                'story_id': result['story_id'],
-                'feature_type': result['feature_type'],
-                'valid_gherkin': is_valid,
-                'effort': result['estimated_effort']
-            })
+            results.append(
+                {
+                    "test_case": i,
+                    "description": test_case["description"],
+                    "success": True,
+                    "story_id": result["story_id"],
+                    "feature_type": result["feature_type"],
+                    "valid_gherkin": is_valid,
+                    "effort": result["estimated_effort"],
+                }
+            )
 
         except Exception as e:
             print(f"❌ Test failed: {str(e)}")
-            results.append({
-                'test_case': i,
-                'description': test_case['description'],
-                'success': False,
-                'error': str(e)
-            })
+            results.append(
+                {
+                    "test_case": i,
+                    "description": test_case["description"],
+                    "success": False,
+                    "error": str(e),
+                }
+            )
 
     # Summary
-    successful_tests = sum(1 for r in results if r['success'])
+    successful_tests = sum(1 for r in results if r["success"])
     print(f"\n=== Story Generator Test Summary ===")
     print(f"Passed: {successful_tests}/{len(test_cases)}")
     print(f"Success Rate: {successful_tests / len(test_cases) * 100:.1f}%")
@@ -147,9 +151,9 @@ async def test_ai_client():
         result = await client.generate_story_with_ai(test_description)
 
         # Validate results
-        assert result['story_id'], "Story ID should be generated"
-        assert result['gherkin_content'], "Gherkin content should be generated"
-        assert 'ai_provider' in result, "AI provider info should be included"
+        assert result["story_id"], "Story ID should be generated"
+        assert result["gherkin_content"], "Gherkin content should be generated"
+        assert "ai_provider" in result, "AI provider info should be included"
 
         print(f"✅ Story generated successfully")
         print(f"✅ AI Provider: {result.get('ai_provider', 'unknown')}")
@@ -157,7 +161,7 @@ async def test_ai_client():
         print(f"✅ Confidence Score: {result.get('confidence_score', 'N/A')}")
 
         # Test story quality analysis
-        quality = await client.analyze_story_quality(result['gherkin_content'])
+        quality = await client.analyze_story_quality(result["gherkin_content"])
         print(f"✅ Quality Score: {quality['quality_score']:.2f}")
         print(f"✅ Valid Gherkin: {quality['is_valid_gherkin']}")
 
@@ -168,9 +172,7 @@ async def test_ai_client():
         # Test refinement
         refinement_feedback = "Add authentication and authorization requirements"
         refined = await client.refine_story_with_ai(
-            result['story_id'],
-            result,
-            refinement_feedback
+            result["story_id"], result, refinement_feedback
         )
 
         print(f"✅ Story refined successfully")
@@ -193,7 +195,8 @@ async def test_schema_validation():
             feature_description="User authentication with multi-factor authentication",
             story_type="feature",
             priority="high",
-            use_ai=True)
+            use_ai=True,
+        )
         print("✅ Valid request schema passes validation")
 
         # Test invalid requests
@@ -201,7 +204,7 @@ async def test_schema_validation():
             invalid_request = StoryGenerationRequest(
                 feature_description="",  # Empty description should fail
                 story_type="feature",
-                priority="high"
+                priority="high",
             )
             print("❌ Empty description should have failed validation")
             return False
@@ -212,7 +215,7 @@ async def test_schema_validation():
             invalid_request = StoryGenerationRequest(
                 feature_description="Short",  # Too short should fail
                 story_type="feature",
-                priority="high"
+                priority="high",
             )
             print("❌ Short description should have failed validation")
             return False
@@ -221,14 +224,14 @@ async def test_schema_validation():
 
         # Test response schema
         sample_story_data = {
-            'story_id': 'TEST_STORY_001',
-            'feature_description': 'Test feature',
-            'gherkin_content': 'Feature: Test\n  Scenario: Test',
-            'acceptance_criteria': ['Test criterion'],
-            'estimated_effort': 5,
-            'story_type': 'story',
-            'priority': 'medium',
-            'generated_at': datetime.utcnow().isoformat()
+            "story_id": "TEST_STORY_001",
+            "feature_description": "Test feature",
+            "gherkin_content": "Feature: Test\n  Scenario: Test",
+            "acceptance_criteria": ["Test criterion"],
+            "estimated_effort": 5,
+            "story_type": "story",
+            "priority": "medium",
+            "generated_at": datetime.utcnow().isoformat(),
         }
 
         response = StoryResponse(**sample_story_data)
@@ -251,14 +254,16 @@ async def test_integration():
         ai_client = create_ai_client()
 
         # Test end-to-end workflow
-        feature_description = "Real-time collaborative document editing with version control"
+        feature_description = (
+            "Real-time collaborative document editing with version control"
+        )
 
         # Generate story
         story_result = generator.generate_gherkin_story(feature_description)
         print(f"✅ Story generated: {story_result['story_id']}")
 
         # Analyze quality
-        quality = await ai_client.analyze_story_quality(story_result['gherkin_content'])
+        quality = await ai_client.analyze_story_quality(story_result["gherkin_content"])
         print(f"✅ Quality analyzed: {quality['quality_score']:.2f}")
 
         # Get suggestions
@@ -266,17 +271,18 @@ async def test_integration():
         print(f"✅ Suggestions generated: {len(suggestions)} items")
 
         # Refine story
-        refinement_feedback = "Add real-time conflict resolution and user presence indicators"
+        refinement_feedback = (
+            "Add real-time conflict resolution and user presence indicators"
+        )
         refined_story = generator.refine_story(
-            story_result['story_id'],
-            refinement_feedback,
-            story_result
+            story_result["story_id"], refinement_feedback, story_result
         )
         print(f"✅ Story refined: version {refined_story.get('version', 1)}")
 
         # Validate final result
         is_valid, issues = generator.validate_gherkin_syntax(
-            refined_story['gherkin_content'])
+            refined_story["gherkin_content"]
+        )
         print(f"✅ Final validation: {'Valid' if is_valid else 'Invalid'}")
 
         if issues:
@@ -302,7 +308,7 @@ async def demo_story_generation():
         "Admin dashboard for monitoring system performance and user activity",
         "Mobile app push notifications for order status updates",
         "API rate limiting and authentication for third-party integrations",
-        "Document collaboration with real-time editing and comments"
+        "Document collaboration with real-time editing and comments",
     ]
 
     for i, feature in enumerate(demo_features, 1):
@@ -311,9 +317,7 @@ async def demo_story_generation():
 
         try:
             result = generator.generate_gherkin_story(
-                feature,
-                StoryType.FEATURE,
-                Priority.MEDIUM
+                feature, StoryType.FEATURE, Priority.MEDIUM
             )
 
             print(f"📋 Story ID: {result['story_id']}")
@@ -322,10 +326,10 @@ async def demo_story_generation():
             print(f"✅ Criteria: {len(result['acceptance_criteria'])} items")
 
             print("\n📝 Generated Gherkin Story:")
-            print(result['gherkin_content'])
+            print(result["gherkin_content"])
 
             print(f"\n📋 Acceptance Criteria:")
-            for j, criterion in enumerate(result['acceptance_criteria'], 1):
+            for j, criterion in enumerate(result["acceptance_criteria"], 1):
                 print(f"  {j}. {criterion}")
 
         except Exception as e:
@@ -346,21 +350,25 @@ async def main():
 
     # Test story generator
     generator_results = await test_story_generator()
-    test_results.append(('Story Generator',
-                         len([r for r in generator_results if r['success']]),
-                         len(generator_results)))
+    test_results.append(
+        (
+            "Story Generator",
+            len([r for r in generator_results if r["success"]]),
+            len(generator_results),
+        )
+    )
 
     # Test AI client
     ai_result = await test_ai_client()
-    test_results.append(('AI Client', 1 if ai_result else 0, 1))
+    test_results.append(("AI Client", 1 if ai_result else 0, 1))
 
     # Test schema validation
     schema_result = await test_schema_validation()
-    test_results.append(('Schema Validation', 1 if schema_result else 0, 1))
+    test_results.append(("Schema Validation", 1 if schema_result else 0, 1))
 
     # Test integration
     integration_result = await test_integration()
-    test_results.append(('Integration', 1 if integration_result else 0, 1))
+    test_results.append(("Integration", 1 if integration_result else 0, 1))
 
     # Overall summary
     total_passed = sum(passed for _, passed, _ in test_results)
@@ -375,14 +383,15 @@ async def main():
         status = "✅ PASS" if passed == total else "❌ FAIL"
         print(f"{test_name:<20}: {passed}/{total} ({success_rate:.1f}%) {status}")
 
-    overall_success_rate = (
-        total_passed /
-        total_tests *
-        100) if total_tests > 0 else 0
-    overall_status = "✅ ALL TESTS PASSED" if total_passed == total_tests else "❌ SOME TESTS FAILED"
+    overall_success_rate = (total_passed / total_tests * 100) if total_tests > 0 else 0
+    overall_status = (
+        "✅ ALL TESTS PASSED" if total_passed == total_tests else "❌ SOME TESTS FAILED"
+    )
 
     print("-" * 60)
-    print(f"{'OVERALL':<20}: {total_passed}/{total_tests} ({overall_success_rate:.1f}%) {overall_status}")
+    print(
+        f"{'OVERALL':<20}: {total_passed}/{total_tests} ({overall_success_rate:.1f}%) {overall_status}"
+    )
     print("=" * 60)
 
     # Run demo if tests are mostly successful

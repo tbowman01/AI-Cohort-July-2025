@@ -143,5 +143,35 @@ export const handlers = [
         response_time_ms: 50
       }
     })
+  }),
+
+  // Mock list stories endpoint
+  http.get(`${API_BASE_URL}/api/v1/stories`, ({ request }) => {
+    const url = new URL(request.url)
+    const page = parseInt(url.searchParams.get('page') || '1')
+    const pageSize = parseInt(url.searchParams.get('page_size') || '10')
+    
+    return HttpResponse.json({
+      stories: [
+        {
+          story_id: 'test-story-1',
+          title: 'Test Story 1',
+          gherkin: 'Feature: Test Feature 1',
+          acceptance_criteria: ['Criteria 1', 'Criteria 2'],
+          estimated_points: 5,
+          story_type: 'user_story',
+          priority: 'medium',
+          complexity: 'medium',
+          status: 'draft',
+          tags: ['test'],
+          created_at: new Date().toISOString()
+        }
+      ],
+      total_count: 1,
+      page: page,
+      page_size: pageSize,
+      has_next: false,
+      has_previous: false
+    })
   })
 ]

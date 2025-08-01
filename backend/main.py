@@ -140,8 +140,6 @@ async def root():
 app.include_router(stories.router, prefix="/api/v1", tags=["Stories"])
 
 
-
-
 if __name__ == "__main__":
     import uvicorn
 

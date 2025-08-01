@@ -36,6 +36,12 @@ export default defineConfig({
         '**/*.config.js',
         'dist/'
       ]
+    },
+    pool: 'forks',
+    poolOptions: {
+      forks: {
+        singleFork: true
+      }
     }
   }
 })

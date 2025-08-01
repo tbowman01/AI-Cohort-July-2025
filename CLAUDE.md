@@ -1,213 +1,223 @@
-# 🤖 Hybrid+ Claude Workflow Configuration (`hybrid-plus-claude.md`)
+# 🚀 AutoDevHub Claude Configuration (`CLAUDE.md`)
 
-## 🧭 Purpose
+## 🎯 Project Context
 
-- ✅ Maintain human-readable task planning and role-driven prompts  
-- ⚡ Maximize batch parallelization with swarm coordination  
-- 🔁 Enable adaptive workflows based on runtime conditions  
-- 🧠 Persist swarm memory and summarize reasoning across PRs  
-- 🛡 Comply with model auditability and provenance tracking  
+**AutoDevHub**: AI-powered DevOps tracker that automates story generation, documentation, and workflow orchestration.
+
+### Core Technologies
+- **Backend**: FastAPI (Python 3.11+) with SQLite + Redis
+- **Frontend**: React + TypeScript with Vite
+- **AI**: Claude AI for story generation
+- **Infrastructure**: Docker, GitHub Actions CI/CD
+- **Testing**: pytest (backend), Jest (frontend)
 
 ---
 
 ## 🧠 Core Principles
 
-1. All tasks must be declared in a single batched message  
-2. Use `swarm_init` to maximize concurrency and resource allocation  
-3. Enable memory tracking and reuse across sessions  
-4. Capture Claude model identity and actions for transparency  
-5. Support adaptive agents that react to runtime signals (e.g. failed PR checks)  
+1. **Batch Operations**: Maximize parallel execution for performance
+2. **Defensive Security**: Only assist with security analysis and defensive coding
+3. **Quality First**: All code must pass linting and type checking
+4. **Documentation**: Update docs only when explicitly requested
+5. **Memory Persistence**: Track insights across sessions for continuity
 
 ---
 
-## 🔁 Role Definitions
+## 🔁 Specialized Agent Roles
 
-| Role               | Responsibilities                                                             | Batch | Adaptive | GitHub Integrated |
-|--------------------|------------------------------------------------------------------------------|-------|----------|-------------------|
-| `planner`          | Translate specs/issues into technical plans                                  | ✅    | ❌        | ✅                 |
-| `coder`            | Generate/modify backend code                                                 | ✅    | ❌        | ✅                 |
-| `reviewer`         | Analyze diffs, style, and quality, post PR comments                          | ✅    | ❌        | ✅                 |
-| `tester`           | Generate, execute, and report on tests                                       | ✅    | ❌        | ✅                 |
-| `adaptive`         | Monitor CI status, spawn agents dynamically (e.g., re-run tests, fix style)  | 🟡    | ✅        | ✅                 |
-| `release-manager`  | Generate changelogs, GitHub Releases, version tags                           | ✅    | ❌        | ✅                 |
-
----
-
-## ⚙️ Batch Workflow Template
-
-```js
-[BatchTool]:
-  mcp__claude-flow__swarm_init {
-    topology: "flat",
-    maxAgents: 6,
-    memory: true,
-    auditLedger: true
-  }
-
-  mcp__claude-flow__agent_spawn { type: "planner" }
-  mcp__claude-flow__agent_spawn { type: "coder" }
-  mcp__claude-flow__agent_spawn { type: "reviewer" }
-  mcp__claude-flow__agent_spawn { type: "tester" }
-  mcp__claude-flow__agent_spawn { type: "adaptive" }
-
-  TodoWrite {
-    todos: [
-      "Plan API spec for new subscription flow",
-      "Write implementation logic for endpoint",
-      "Generate tests and validate coverage",
-      "Monitor PR checks, re-trigger if failed"
-    ]
-  }
-
-  Bash("mkdir -p src/subscription && touch src/subscription/endpoint.ts")
-  Write("src/subscription/endpoint.ts")
-
-  MemoryWrite("swarm-graph", {
-    key: "pr-#94-subscription",
-    tags: ["API", "backend", "coverage"],
-    insights: [
-      "used zod for input validation",
-      "added JWT check for secure access"
-    ]
-  })
-
-  LedgerLog("claude-3-opus", "coder", "sha256:ab8e...", "Add subscription endpoint", "2025-08-01T15:20Z")
-````
+| Role | Responsibilities | Primary Tools | Context |
+|------|-----------------|---------------|---------|
+| `backend-dev` | FastAPI endpoints, services, models | Python, SQLite, Redis | backend/ |
+| `frontend-dev` | React components, UI/UX, state management | TypeScript, Vite, CSS | frontend/ |
+| `tester` | Write/run tests, coverage reports | pytest, Jest, coverage | tests/, __tests__/ |
+| `security-analyst` | Security scanning, vulnerability analysis | Bandit, defensive patterns | All code |
+| `devops-engineer` | CI/CD, Docker, deployment | GitHub Actions, Docker | .github/, deployment/ |
+| `api-docs` | API documentation, OpenAPI specs | FastAPI docs, Swagger | backend/routers/ |
 
 ---
 
-## 📑 Prompt Templates
-
-### 🧠 `planner`
-
-```
-System: You are a software architect.
-Prompt: Break down the feature "<feature>" into implementable backend tasks and acceptance criteria.
-```
-
-### 🧑‍💻 `coder`
-
-```
-System: You are a secure backend developer.
-Prompt: Implement "<feature>" using TypeScript. Follow existing patterns and include doc comments.
-```
-
-### 🧪 `tester`
-
-```
-System: You are a QA engineer.
-Prompt: Generate test cases for "<module>". Cover edge cases and validate all branches.
-```
-
-### 👀 `reviewer`
-
-```
-System: You are a senior reviewer.
-Prompt: Review this PR diff. Identify bugs, style violations, and logic errors. Use bullets.
-```
-
-### 🔁 `adaptive`
-
-```
-System: You are an adaptive DevOps agent.
-Prompt: Monitor CI checks and trigger agents (e.g. tester or formatter) based on failures.
-```
-
----
-
-## 🔐 Permissions
-
-```json
-{
-  "permissions": {
-    "allow": [
-      "Edit",
-      "Write",
-      "Bash(npm *)",
-      "Bash(pytest *)",
-      "Bash(gh *)",
-      "Bash(git *)",
-      "mcp__claude-flow__*",
-      "MemoryWrite",
-      "LedgerLog"
-    ]
-  }
-}
-```
-
----
-
-## 📊 Progress & Observability
-
-### Format for Swarm Status Updates
-
-```
-📊 Claude Swarm Progress
-├── Total: 5
-├── ✅ Completed: 3
-├── 🔄 In Progress: 1
-├── ⭕ Todo: 1
-└── ❌ Blocked: 0
-```
-
-### Trigger for real-time update
+## ⚡ Quick Commands
 
 ```bash
-npx claude-flow hooks post-edit | tee swarm-status.log
+# Development
+npm run dev              # Start both frontend and backend
+npm run test            # Run all tests
+npm run lint            # Lint all code
+
+# Backend specific
+cd backend && uvicorn main:app --reload
+cd backend && pytest -v
+cd backend && black . && isort . && flake8
+
+# Frontend specific  
+cd frontend && npm run dev
+cd frontend && npm test
+cd frontend && npm run lint
+
+# Docker operations
+docker-compose up -d    # Start services
+docker-compose down     # Stop services
+docker-compose logs -f  # View logs
 ```
 
 ---
 
-## 📁 Ledger + Memory Usage
+## 📋 Task Templates
 
-### Memory Write Example
+### 🔧 Backend Feature Implementation
+```
+1. Analyze existing patterns in backend/routers/ and backend/services/
+2. Create/update service in backend/services/
+3. Create/update router in backend/routers/
+4. Update schemas in backend/schemas/
+5. Write tests in backend/tests/
+6. Run: cd backend && pytest && black . && flake8
+```
 
-```json
-{
-  "key": "user-flow-refactor",
-  "tags": ["auth", "jwt", "performance"],
-  "insights": [
-    "replaced bcrypt with argon2",
-    "removed redundant DB calls in middleware"
-  ]
+### ⚛️ Frontend Component Development
+```
+1. Check existing components in frontend/src/components/
+2. Create component with TypeScript and CSS modules
+3. Add tests in __tests__/ directory
+4. Update App.jsx if needed
+5. Run: cd frontend && npm test && npm run lint
+```
+
+### 🔒 Security Review
+```
+1. Run: cd backend && bandit -r . -f json > bandit-report.json
+2. Review authentication in backend/dependencies.py
+3. Check API endpoints for injection vulnerabilities
+4. Validate input sanitization in schemas
+5. Document findings (only if requested)
+```
+
+---
+
+## 🛡️ Security Guidelines
+
+- **Authentication**: JWT tokens via backend/dependencies.py
+- **Validation**: Pydantic schemas for all inputs
+- **SQL**: Use SQLAlchemy ORM, never raw SQL
+- **Secrets**: Environment variables only, never hardcode
+- **CORS**: Configured in backend/main.py
+- **Error Handling**: Never expose internal errors to users
+
+---
+
+## 📁 Project Structure Reference
+
+```
+backend/
+├── main.py           # FastAPI app entry
+├── routers/          # API endpoints
+├── services/         # Business logic
+├── schemas/          # Pydantic models
+├── models.py         # SQLAlchemy models
+├── database.py       # DB configuration
+└── tests/           # Backend tests
+
+frontend/
+├── src/
+│   ├── components/   # React components
+│   ├── styles/       # CSS modules
+│   └── App.jsx      # Main app
+├── vite.config.js   # Vite config
+└── package.json     # Dependencies
+```
+
+---
+
+## 🔄 Workflow Patterns
+
+### API Endpoint Creation
+```javascript
+// 1. Schema (backend/schemas/feature.py)
+from pydantic import BaseModel
+
+class FeatureCreate(BaseModel):
+    name: str
+    description: str
+
+// 2. Service (backend/services/feature_service.py)
+async def create_feature(db: Session, feature: FeatureCreate):
+    // Business logic here
+    pass
+
+// 3. Router (backend/routers/feature_router.py)
+@router.post("/features")
+async def create_feature_endpoint(
+    feature: FeatureCreate,
+    db: Session = Depends(get_db)
+):
+    return await create_feature(db, feature)
+```
+
+### React Component Pattern
+```typescript
+// frontend/src/components/Feature.tsx
+import styles from './Feature.module.css';
+
+interface FeatureProps {
+    title: string;
+    onAction: () => void;
 }
-```
 
-### Ledger Log Example
-
-```json
-{
-  "model": "claude-3-opus",
-  "agent": "reviewer",
-  "task": "Review login refactor PR",
-  "hash": "sha256:eeb9...",
-  "timestamp": "2025-08-01T15:00:00Z"
-}
-```
-
-Stored under: `.claude-ledger/pr-<number>.json`
-
----
-
-## 🧩 Coordination Hooks
-
-```bash
-npx claude-flow@alpha hooks pre-task
-npx claude-flow@alpha hooks post-edit
-npx claude-flow@alpha hooks notify
-npx claude-flow@alpha hooks post-task
+export const Feature: React.FC<FeatureProps> = ({ title, onAction }) => {
+    return (
+        <div className={styles.container}>
+            <h2>{title}</h2>
+            <button onClick={onAction}>Action</button>
+        </div>
+    );
+};
 ```
 
 ---
 
-## 🔗 CLI Commands
+## 📊 Quality Checks
 
-| Task          | Command                                                            |
-| ------------- | ------------------------------------------------------------------ |
-| Spec + Plan   | `npx claude-flow sparc run spec-pseudocode "<task>" --parallel`    |
-| Implement     | `npx claude-flow sparc run architect "<task>" --parallel`          |
-| Test/Validate | `npx claude-flow sparc tdd "<feature>" --batch-tdd`                |
-| PR Integrate  | `npx claude-flow sparc run integration "<task>" --parallel`        |
-| Release       | `npx claude-flow release-manager generate --from main --to v1.2.0` |
+Before marking any task complete:
+
+1. **Backend**: `cd backend && pytest && black . && isort . && flake8`
+2. **Frontend**: `cd frontend && npm test && npm run lint`
+3. **Security**: `bandit -r backend/`
+4. **Docker**: `docker-compose ps` (verify services running)
 
 ---
+
+## 🧩 Memory Keys
+
+Store insights using these standardized keys:
+
+- `api-patterns`: REST API design decisions
+- `component-patterns`: React component structures
+- `test-strategies`: Testing approaches
+- `security-findings`: Security analysis results
+- `performance-opts`: Optimization techniques
+- `deployment-notes`: Deployment configurations
+
+---
+
+## 🚨 Important Reminders
+
+1. **NEVER** create documentation files unless explicitly requested
+2. **ALWAYS** run linting and tests before completing tasks
+3. **PREFER** editing existing files over creating new ones
+4. **CHECK** existing patterns before implementing new features
+5. **USE** TodoWrite for multi-step tasks
+6. **VALIDATE** all user inputs with Pydantic schemas
+7. **FOLLOW** defensive security practices
+
+---
+
+## 🔗 Quick References
+
+- Backend API: http://localhost:8000/docs
+- Frontend: http://localhost:3000
+- GitHub: https://github.com/ai-cohort-july-2025/AI-Cohort-July-2025
+- Docs: https://ai-cohort-july-2025.github.io/AI-Cohort-July-2025/
+
+## 🚀 Task Workflow Guidelines
+
+- After completing the task, always commit files and create PR to the defined branch you are working on

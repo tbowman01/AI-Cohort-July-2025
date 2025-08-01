@@ -40,6 +40,13 @@ Capstone project presentation resources:
 - **Demo Script**: Step-by-step demonstration guide
 - **Business Value**: ROI analysis and impact metrics
 
+### 📞 [Contact & Support](/docs/contacts/)
+Get help and connect with the development team:
+- **Support Channels**: GitHub issues, discussions, and community help
+- **Bug Reports**: Report issues and get assistance
+- **Feature Requests**: Suggest improvements and new features
+- **Development Team**: Contact information and project maintainers
+
 ## 🚀 Quick Navigation
 
 <div class="quick-nav">
@@ -75,6 +82,7 @@ Capstone project presentation resources:
     <ul>
       <li><a href="/docs/presentation/slides/">Presentation</a></li>
       <li><a href="/docs/adr/">Decision Records</a></li>
+      <li><a href="/docs/contacts/">Contact & Support</a></li>
       <li><a href="https://github.com/ai-cohort-july-2025/AI-Cohort-July-2025">GitHub Repository</a></li>
     </ul>
   </div>

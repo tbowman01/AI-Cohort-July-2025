@@ -154,34 +154,87 @@ npm run dev
 
 ## Docker Development
 
-### Full Stack with Docker Compose
+### Prerequisites
+
+```bash
+# Check Docker environment
+make docker-check
+
+# Expected output:
+# ✅ Docker environment is ready!
+# Docker version: Docker version X.X.X
+# Docker Compose version: Docker Compose version X.X.X
+```
+
+### Quick Start with Makefile Commands
+
+```bash
+# 🚀 Start all services in one command
+make docker-up
+
+# Services will be available at:
+# - Frontend: http://localhost:3000
+# - Backend API: http://localhost:5000
+# - API Docs: http://localhost:5000/docs
+```
+
+### Development Workflow
+
+```bash
+# Start development environment
+make docker-dev              # Start with development settings
+
+# Monitor your application
+make docker-status           # Check container health
+make docker-logs             # View live logs
+
+# Interact with containers
+make docker-shell            # Open shell in backend container
+make docker-exec SERVICE=backend COMMAND='python --version'
+
+# Stop and cleanup
+make docker-down             # Stop containers
+make docker-clean            # Full cleanup (containers, images, volumes)
+```
+
+### Building and Rebuilding
+
+```bash
+# Build Docker images
+make docker-build            # Build all images
+
+# Rebuild from scratch (no cache)
+make docker-rebuild          # Complete rebuild
+
+# Production build
+make docker-prod             # Start in production mode
+```
+
+### Traditional Docker Compose Commands
+
+If you prefer using docker-compose directly:
 
 ```bash
 # From project root
-# Build and start all services
-docker-compose up -d
-
-# View logs
-docker-compose logs -f
-
-# Stop services
-docker-compose down
-
-# Rebuild services
-docker-compose up -d --build
+docker-compose up -d         # Start all services
+docker-compose logs -f       # View logs
+docker-compose down          # Stop services
+docker-compose build         # Build images
 ```
 
-### Individual Services
+### Container Access
 
 ```bash
-# Backend only
-docker-compose up -d backend
+# Open shell in backend container
+make docker-shell
 
-# Frontend only
-docker-compose up -d frontend
+# Execute specific commands
+make docker-exec SERVICE=backend COMMAND='pip list'
+make docker-exec SERVICE=frontend COMMAND='npm list'
 
-# Database only
-docker-compose up -d db
+# Manual docker exec
+docker exec -it autodevhub-backend bash
+docker exec -it autodevhub-frontend sh
 ```
 
 ---
@@ -400,6 +453,61 @@ npm install
 # Clear Vite cache
 npm run build:clean
 npm run build
+```
+
+#### Docker Issues
+
+**Docker daemon not running**
+```bash
+# Check Docker status
+make docker-check
+
+# Start Docker (macOS)
+open -a Docker
+
+# Start Docker (Linux)
+sudo systemctl start docker
+```
+
+**Port conflicts**
+```bash
+# Check what's using ports 3000 and 5000
+lsof -i :3000
+lsof -i :5000
+
+# Stop conflicting services or change ports in docker-compose.yml
+```
+
+**Container won't start**
+```bash
+# Check container logs
+make docker-logs
+
+# Check container status
+make docker-status
+
+# Rebuild containers
+make docker-rebuild
+```
+
+**Permission errors with volumes**
+```bash
+# Check and fix directory permissions
+mkdir -p data/backend logs/backend
+chmod 755 data/backend logs/backend
+
+# Or use Docker cleanup
+make docker-clean
+make docker-up
+```
+
+**Out of disk space**
+```bash
+# Clean up Docker resources
+make docker-clean
+
+# Remove all unused Docker resources
+docker system prune -a --volumes
 ```
 
 ### Debug Mode
