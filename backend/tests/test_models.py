@@ -331,7 +331,7 @@ class TestSessionModel:
 class TestModelUtilityFunctions:
     """Test cases for model utility functions."""
 
-    def test_search_user_stories_basic(self, db_session):
+    async def test_search_user_stories_basic(self, db_session):
         """Test basic user story search functionality."""
         # Create test stories
         stories_data = [

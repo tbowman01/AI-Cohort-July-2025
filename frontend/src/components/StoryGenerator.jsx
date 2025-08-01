@@ -67,6 +67,36 @@ const StoryGenerator = () => {
     }
   }
 
+  const listStories = async () => {
+    setLoading(true)
+    setError(null)
+
+    try {
+      const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000'
+      
+      const response = await fetch(`${apiBaseUrl}/api/v1/stories`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => null)
+        throw new Error(errorData?.message || `HTTP error! status: ${response.status}`)
+      }
+
+      const data = await response.json()
+      // The API returns a StoryListResponse object with a stories array
+      setStories(data.stories || [])
+    } catch (err) {
+      setError(`Failed to fetch stories: ${err.message}`)
+      console.error('Error fetching stories:', err)
+    } finally {
+      setLoading(false)
+    }
+  }
+
   const resetForm = () => {
     setFormData({
       projectName: '',
@@ -149,6 +179,9 @@ const StoryGenerator = () => {
           <div className="form-actions">
             <button type="submit" disabled={loading || !formData.projectName || !formData.projectDescription}>
               {loading ? 'Generating Stories...' : 'Generate User Stories'}
+            </button>
+            <button type="button" onClick={listStories} disabled={loading}>
+              {loading ? 'Loading Stories...' : 'List Stories'}
             </button>
             <button type="button" onClick={resetForm} disabled={loading}>
               Reset Form

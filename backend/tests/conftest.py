@@ -201,7 +201,9 @@ async def async_test_client(override_async_get_db, override_ai_service):
 def sample_story_data():
     """Sample story data for testing."""
     return {
-        "description": (\n            "As a user, I want to create a new account so I can access the system"\n        ),
+        "description": (
+            "As a user, I want to create a new account so I can access the system"
+        ),
         "project_context": "User management system",
         "story_type": "user_story",
         "complexity": "medium"}

@@ -71,7 +71,8 @@ class Settings(BaseSettings):
     # Environment Configuration
     environment: str = Field(
         default="development",
-        description="Application environment (development, testing, production)"\n    )
+        description="Application environment (development, testing, production)"
+    )
 
     # Database Configuration (ADR-003: SQLite)
     database_file: str = Field(
