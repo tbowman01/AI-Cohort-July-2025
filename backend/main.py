@@ -8,7 +8,7 @@ providing API endpoints for AI-powered DevOps tracking functionality.
 
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, RedirectResponse
 from fastapi.exceptions import RequestValidationError
 from starlette.exceptions import HTTPException as StarletteHTTPException
 import logging
@@ -127,41 +127,19 @@ async def health_check() -> Dict[str, Any]:
     }
 
 
-# Root endpoint
+# Root endpoint - redirect to docs
 @app.get("/", tags=["Root"], summary="API Root")
-async def root() -> Dict[str, str]:
+async def root():
     """
-    Root endpoint providing basic API information.
-
-    Returns:
-        Dict with welcome message and documentation links
+    Root endpoint redirects to API documentation.
     """
-    return {
-        "message": "Welcome to AutoDevHub API",
-        "version": "1.0.0",
-        "documentation": "/docs",
-        "health_check": "/health",
-    }
+    return RedirectResponse(url="/docs")
 
 
 # Include routers
-app.include_router(stories.router, prefix="/api/v1/stories", tags=["Stories"])
+app.include_router(stories.router, prefix="/api/v1", tags=["Stories"])
 
 
-# Application startup event
-@app.on_event("startup")
-async def startup_event():
-    """Initialize application resources on startup."""
-    logger.info("AutoDevHub API starting up...")
-    logger.info(f"Environment: {settings.environment}")
-    logger.info(f"Debug mode: {settings.debug}")
-
-
-# Application shutdown event
-@app.on_event("shutdown")
-async def shutdown_event():
-    """Clean up application resources on shutdown."""
-    logger.info("AutoDevHub API shutting down...")
 
 
 if __name__ == "__main__":

@@ -17,14 +17,13 @@ import pytest_asyncio
 from fastapi.testclient import TestClient
 from httpx import AsyncClient
 from sqlalchemy import create_engine
-from sqlalchemy.ext.asyncio import (
-    AsyncSession, async_sessionmaker, create_async_engine
-)
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 from sqlalchemy.orm import Session, sessionmaker
 
 # Add the backend directory to Python path for imports
 import sys
 import os
+
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 # Import application components
@@ -69,7 +68,7 @@ def test_engine(temp_db_file):
         database_url,
         echo=False,
         pool_pre_ping=True,
-        connect_args={"check_same_thread": False}
+        connect_args={"check_same_thread": False},
     )
     yield engine
     engine.dispose()
@@ -79,11 +78,7 @@ def test_engine(temp_db_file):
 async def async_test_engine(temp_db_file):
     """Create an async test database engine."""
     database_url = f"sqlite+aiosqlite:///{temp_db_file}"
-    engine = create_async_engine(
-        database_url,
-        echo=False,
-        pool_pre_ping=True
-    )
+    engine = create_async_engine(database_url, echo=False, pool_pre_ping=True)
 
     # Initialize database tables
     async with engine.begin() as conn:
@@ -97,9 +92,7 @@ async def async_test_engine(temp_db_file):
 def db_session(test_engine) -> Generator[Session, None, None]:
     """Create a database session for testing."""
     TestingSessionLocal = sessionmaker(
-        autocommit=False,
-        autoflush=False,
-        bind=test_engine
+        autocommit=False, autoflush=False, bind=test_engine
     )
 
     with TestingSessionLocal() as session:
@@ -107,13 +100,10 @@ def db_session(test_engine) -> Generator[Session, None, None]:
 
 
 @pytest_asyncio.fixture
-async def async_db_session(
-        async_test_engine) -> AsyncGenerator[AsyncSession, None]:
+async def async_db_session(async_test_engine) -> AsyncGenerator[AsyncSession, None]:
     """Create an async database session for testing."""
     AsyncTestingSessionLocal = async_sessionmaker(
-        async_test_engine,
-        class_=AsyncSession,
-        expire_on_commit=False
+        async_test_engine, class_=AsyncSession, expire_on_commit=False
     )
 
     async with AsyncTestingSessionLocal() as session:
@@ -123,16 +113,20 @@ async def async_db_session(
 @pytest.fixture
 def override_get_db(db_session):
     """Override the get_database_session dependency for testing."""
+
     def _override_get_db():
         yield db_session
+
     return _override_get_db
 
 
 @pytest.fixture
 def override_async_get_db(async_db_session):
     """Override the async get_db dependency for testing."""
+
     async def _override_async_get_db():
         yield async_db_session
+
     return _override_async_get_db
 
 
@@ -157,8 +151,8 @@ Feature: Test Feature for {description[:50]}
             "acceptance_criteria": [
                 "Test criterion 1",
                 "Test criterion 2",
-                "Test criterion 3"
-            ]
+                "Test criterion 3",
+            ],
         }
 
     mock_service.generate_story = AsyncMock(side_effect=mock_generate_story)
@@ -168,8 +162,10 @@ Feature: Test Feature for {description[:50]}
 @pytest.fixture
 def override_ai_service(mock_ai_service):
     """Override the AI service dependency for testing."""
+
     async def _override_ai_service():
         return mock_ai_service
+
     return _override_ai_service
 
 
@@ -211,7 +207,8 @@ def sample_story_data():
         ),
         "project_context": "User management system",
         "story_type": "user_story",
-        "complexity": "medium"}
+        "complexity": "medium",
+    }
 
 
 @pytest.fixture
@@ -228,13 +225,15 @@ Feature: User Account Creation
     And I submit the registration form
     Then I should see a success message
     And I should receive a confirmation email
-        """.strip()
+        """.strip(),
     )
-    story.set_metadata({
-        "project_context": sample_story_data["project_context"],
-        "story_type": sample_story_data["story_type"],
-        "complexity": sample_story_data["complexity"]
-    })
+    story.set_metadata(
+        {
+            "project_context": sample_story_data["project_context"],
+            "story_type": sample_story_data["story_type"],
+            "complexity": sample_story_data["complexity"],
+        }
+    )
 
     db_session.add(story)
     db_session.commit()
@@ -251,8 +250,8 @@ def sample_session_data():
             "theme": "dark",
             "language": "en",
             "notifications": True,
-            "story_templates": ["user_story", "bug_fix"]
-        }
+            "story_templates": ["user_story", "bug_fix"],
+        },
     }
 
 
@@ -272,6 +271,7 @@ def sample_session(db_session, sample_session_data) -> SessionModel:
 def mock_stories_storage():
     """Mock the in-memory stories storage for testing."""
     from routers.stories import STORIES_STORAGE
+
     original_storage = STORIES_STORAGE.copy()
     STORIES_STORAGE.clear()
 
@@ -290,13 +290,15 @@ def large_dataset_stories(db_session):
     for i in range(100):
         story = UserStory(
             feature_description=f"Test feature description {i}",
-            gherkin_output=f"Feature: Test Feature {i}\n\nScenario: Test scenario {i}\n  Given test condition {i}\n  When test action {i}\n  Then test result {i}"
+            gherkin_output=f"Feature: Test Feature {i}\n\nScenario: Test scenario {i}\n  Given test condition {i}\n  When test action {i}\n  Then test result {i}",
         )
-        story.set_metadata({
-            "story_type": "user_story" if i % 2 == 0 else "bug_fix",
-            "complexity": ["low", "medium", "high"][i % 3],
-            "test_index": i
-        })
+        story.set_metadata(
+            {
+                "story_type": "user_story" if i % 2 == 0 else "bug_fix",
+                "complexity": ["low", "medium", "high"][i % 3],
+                "test_index": i,
+            }
+        )
         stories.append(story)
 
     db_session.add_all(stories)
@@ -308,13 +310,12 @@ def large_dataset_stories(db_session):
 @pytest.fixture
 def simulate_db_error(monkeypatch):
     """Simulate database connection errors."""
+
     def mock_db_session():
         raise Exception("Database connection failed")
 
     def enable_error():
-        monkeypatch.setattr(
-            "dependencies.get_database_session",
-            mock_db_session)
+        monkeypatch.setattr("dependencies.get_database_session", mock_db_session)
 
     def disable_error():
         monkeypatch.undo()
@@ -325,12 +326,14 @@ def simulate_db_error(monkeypatch):
 @pytest.fixture
 def simulate_ai_service_error(mock_ai_service):
     """Simulate AI service errors."""
+
     async def mock_generate_story_error(description: str):
         raise Exception("AI service unavailable")
 
     def enable_error():
         mock_ai_service.generate_story = AsyncMock(
-            side_effect=mock_generate_story_error)
+            side_effect=mock_generate_story_error
+        )
 
     def disable_error():
         async def mock_generate_story_success(description: str) -> dict:
@@ -338,10 +341,12 @@ def simulate_ai_service_error(mock_ai_service):
                 "title": f"Test Story: {description[:30]}...",
                 "description": description,
                 "gherkin": "Feature: Test\nScenario: Test\n  Given test\n  When test\n  Then test",
-                "acceptance_criteria": ["Test criterion"]
+                "acceptance_criteria": ["Test criterion"],
             }
+
         mock_ai_service.generate_story = AsyncMock(
-            side_effect=mock_generate_story_success)
+            side_effect=mock_generate_story_success
+        )
 
     return {"enable": enable_error, "disable": disable_error}
 
@@ -350,11 +355,7 @@ def simulate_ai_service_error(mock_ai_service):
 @pytest.fixture
 def mock_authenticated_user():
     """Mock authenticated user data."""
-    return {
-        "id": "test-user-123",
-        "username": "testuser",
-        "email": "test@example.com"
-    }
+    return {"id": "test-user-123", "username": "testuser", "email": "test@example.com"}
 
 
 @pytest.fixture
@@ -381,29 +382,27 @@ def cleanup_database(db_session):
 # Test environment markers
 def pytest_configure(config):
     """Configure pytest markers."""
-    config.addinivalue_line(
-        "markers", "unit: mark test as a unit test"
-    )
-    config.addinivalue_line(
-        "markers", "integration: mark test as an integration test"
-    )
-    config.addinivalue_line(
-        "markers", "performance: mark test as a performance test"
-    )
-    config.addinivalue_line(
-        "markers", "database: mark test as requiring database"
-    )
-    config.addinivalue_line(
-        "markers", "ai_service: mark test as requiring AI service"
-    )
+    config.addinivalue_line("markers", "unit: mark test as a unit test")
+    config.addinivalue_line("markers", "integration: mark test as an integration test")
+    config.addinivalue_line("markers", "performance: mark test as a performance test")
+    config.addinivalue_line("markers", "database: mark test as requiring database")
+    config.addinivalue_line("markers", "ai_service: mark test as requiring AI service")
 
 
 # Utility functions for tests
 def assert_story_response_valid(response_data: dict):
     """Assert that a story response has all required fields."""
     required_fields = [
-        "id", "title", "description", "gherkin", "acceptance_criteria",
-        "story_type", "complexity", "status", "created_at", "updated_at"
+        "id",
+        "title",
+        "description",
+        "gherkin",
+        "acceptance_criteria",
+        "story_type",
+        "complexity",
+        "status",
+        "created_at",
+        "updated_at",
     ]
     for field in required_fields:
         assert field in response_data, f"Missing required field: {field}"
@@ -416,12 +415,8 @@ def assert_story_list_response_valid(response_data: dict):
     for field in required_fields:
         assert field in response_data, f"Missing required field: {field}"
 
-    assert isinstance(response_data["stories"],
-                      list), "stories should be a list"
-    assert isinstance(response_data["total"],
-                      int), "total should be an integer"
+    assert isinstance(response_data["stories"], list), "stories should be a list"
+    assert isinstance(response_data["total"], int), "total should be an integer"
     assert isinstance(response_data["page"], int), "page should be an integer"
-    assert isinstance(response_data["page_size"],
-                      int), "page_size should be an integer"
-    assert isinstance(response_data["has_next"],
-                      bool), "has_next should be a boolean"
+    assert isinstance(response_data["page_size"], int), "page_size should be an integer"
+    assert isinstance(response_data["has_next"], bool), "has_next should be a boolean"

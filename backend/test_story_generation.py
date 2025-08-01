@@ -84,12 +84,9 @@ async def test_story_generator():
 
             print(f"✅ Story ID: {result['story_id']}")
             print(
-                f"✅ Feature Type: {
-                    result['feature_type']} (expected: {
-                    test_case['expected_type']})")
+                f"✅ Feature Type: {result['feature_type']} (expected: {test_case['expected_type']})")
             print(
-                f"✅ Estimated Effort: {
-                    result['estimated_effort']} story points")
+                f"✅ Estimated Effort: {result['estimated_effort']} story points")
             print(f"✅ Valid Gherkin: {is_valid}")
             print(
                 f"✅ Acceptance Criteria: {len(result['acceptance_criteria'])} items")

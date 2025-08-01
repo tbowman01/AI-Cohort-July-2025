@@ -5,7 +5,7 @@ This router handles all story-related API endpoints including story generation,
 retrieval, and management functionality.
 """
 
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field, field_validator
 from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlalchemy.orm import Session
 from typing import List, Optional, Dict, Any
@@ -51,7 +51,8 @@ class StoryGenerationRequest(BaseModel):
         default="medium", description="Complexity level of the feature"
     )
 
-    @validator("story_type")
+    @field_validator("story_type")
+    @classmethod
     def validate_story_type(cls, v):
         """Validate story type options."""
         allowed_types = ["user_story", "epic", "bug_fix", "technical_task"]
@@ -59,7 +60,8 @@ class StoryGenerationRequest(BaseModel):
             raise ValueError(f"story_type must be one of: {allowed_types}")
         return v
 
-    @validator("complexity")
+    @field_validator("complexity")
+    @classmethod
     def validate_complexity(cls, v):
         """Validate complexity level options."""
         allowed_complexity = ["low", "medium", "high", "epic"]
@@ -102,12 +104,13 @@ class StoryUpdateRequest(BaseModel):
     title: Optional[str] = Field(None, max_length=200)
     description: Optional[str] = Field(None, max_length=1000)
     gherkin: Optional[str] = Field(None, max_length=5000)
-    acceptance_criteria: Optional[List[str]] = Field(None, max_items=20)
+    acceptance_criteria: Optional[List[str]] = Field(None, max_length=20)
     status: Optional[str] = Field(None)
     estimated_points: Optional[int] = Field(None, ge=1, le=21)
-    tags: Optional[List[str]] = Field(None, max_items=10)
+    tags: Optional[List[str]] = Field(None, max_length=10)
 
-    @validator("status")
+    @field_validator("status")
+    @classmethod
     def validate_status(cls, v):
         """Validate story status options."""
         if v is not None:
