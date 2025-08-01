@@ -5,7 +5,7 @@ baseurl: "/AI-Cohort-July-2025"
 url: "https://tbowman01.github.io"
 
 # GitHub Pages settings
-theme: minima
+remote_theme: hydecorp/hydejack@v9
 markdown: kramdown
 highlighter: rouge
 kramdown:
@@ -21,33 +21,71 @@ plugins:
   - jekyll-sitemap
   - jekyll-seo-tag
   - jekyll-mermaid
+  - jekyll-default-layout
+  - jekyll-optional-front-matter
+  - jekyll-readme-index
+  - jekyll-relative-links
+  - jekyll-titles-from-headings
 
-# Navigation structure
-navigation:
-  - title: "Home"
-    url: "/"
-  - title: "Architecture"
-    url: "/docs/architecture/"
-    children:
-      - title: "System Overview"
-        url: "/docs/architecture/system-overview/"
-      - title: "API Specification"
-        url: "/docs/architecture/api-specification/"
-      - title: "Database Schema"
-        url: "/docs/architecture/database-schema/"
-  - title: "ADRs"
-    url: "/docs/adr/"
-  - title: "Development"
-    url: "/docs/development/"
-    children:
-      - title: "Setup Guide"
-        url: "/docs/development/setup-guide/"
-      - title: "Deployment"
-        url: "/docs/development/deployment/"
-      - title: "Contributing"
-        url: "/docs/development/contributing/"
-  - title: "Presentation"
-    url: "/docs/presentation/"
+# Hydejack Navigation
+menu:
+  - title: Home
+    url: /
+  - title: Architecture
+    url: /docs/architecture/
+    submenu:
+      - title: System Overview
+        url: /docs/architecture/system-overview.html
+      - title: API Specification  
+        url: /docs/architecture/api-specification.html
+      - title: Database Schema
+        url: /docs/architecture/database-schema.html
+  - title: ADRs
+    url: /docs/adr/
+  - title: Development
+    url: /docs/development/
+    submenu:
+      - title: Setup Guide
+        url: /docs/development/setup-guide.html
+      - title: Deployment
+        url: /docs/development/deployment.html
+      - title: Contributing
+        url: /docs/development/contributing.html
+  - title: Presentation
+    url: /docs/presentation/
+    submenu:
+      - title: Project Slides
+        url: /docs/presentation/slides.html
+      - title: Demo Script
+        url: /docs/presentation/demo-script.html
+
+# Hydejack theme settings
+hydejack:
+  post_addons:    [about, newsletter, related, random]
+  project_addons: [about, newsletter, other]
+  no_mark_external: false
+  no_push_state: false
+  no_drawer: false
+  no_navbar: false
+  no_search: false
+  no_inline_css: false
+  no_page_style: false
+  no_break_layout: true
+  no_toc: false
+  no_third_column: false
+  no_large_headings: false
+  no_structured_data: false
+  no_theme_color: false
+  use_lsi: true
+  cookies_banner: false
+  advertise: false
+  hide_dates: false
+  hide_last_modified: false
+
+# Theme colors and appearance
+accent_image:          /assets/img/sidebar-bg.jpg
+accent_color:          rgb(79,177,186)
+theme_color:           rgb(25,55,71)
 
 # Mermaid configuration
 mermaid:

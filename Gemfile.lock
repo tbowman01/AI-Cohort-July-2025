@@ -277,12 +277,16 @@ PLATFORMS
 
 DEPENDENCIES
   github-pages
+  jekyll-default-layout
   jekyll-feed (~> 0.12)
   jekyll-mermaid
+  jekyll-optional-front-matter
+  jekyll-readme-index
+  jekyll-relative-links
   jekyll-seo-tag (~> 2.6)
   jekyll-sitemap (~> 1.3)
+  jekyll-titles-from-headings
   kramdown-parser-gfm
-  minima (~> 2.5)
   tzinfo-data
   wdm (~> 0.1.1)
 
