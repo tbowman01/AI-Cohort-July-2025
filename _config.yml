@@ -79,6 +79,7 @@ exclude:
   - "README-*.md"
   - "*.lock"
   - ".bundle/"
+  - "vendor/"
   - ".git/"
   - ".github/"
   - "test/"
