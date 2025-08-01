@@ -1,7 +1,8 @@
 """
 AutoDevHub Backend - FastAPI Application Entry Point
 
-This module serves as the main entry point for the AutoDevHub FastAPI application,
+This module serves as the main entry point for the AutoDevHub FastAPI
+application,
 providing API endpoints for AI-powered DevOps tracking functionality.
 """
 
@@ -19,19 +20,21 @@ from config import get_settings
 
 # Configure logging
 logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
 # Initialize FastAPI application
 app = FastAPI(
     title="AutoDevHub API",
-    description="AI-Powered DevOps Tracker - Backend API for managing development stories and workflows",
+    description=(
+        "AI-Powered DevOps Tracker - Backend API for managing development "
+        "stories and workflows"
+    ),
     version="1.0.0",
     docs_url="/docs",
     redoc_url="/redoc",
-    openapi_url="/openapi.json"
+    openapi_url="/openapi.json",
 )
 
 # Get application settings
@@ -69,8 +72,8 @@ async def http_exception_handler(request: Request, exc: StarletteHTTPException):
             "error": True,
             "message": exc.detail,
             "status_code": exc.status_code,
-            "path": str(request.url.path)
-        }
+            "path": str(request.url.path),
+        },
     )
 
 
@@ -84,8 +87,8 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
             "error": True,
             "message": "Request validation failed",
             "details": exc.errors(),
-            "path": str(request.url.path)
-        }
+            "path": str(request.url.path),
+        },
     )
 
 
@@ -98,8 +101,8 @@ async def general_exception_handler(request: Request, exc: Exception):
         content={
             "error": True,
             "message": "Internal server error",
-            "path": str(request.url.path)
-        }
+            "path": str(request.url.path),
+        },
     )
 
 
@@ -108,7 +111,7 @@ async def general_exception_handler(request: Request, exc: Exception):
 async def health_check() -> Dict[str, Any]:
     """
     Health check endpoint to verify API availability and basic functionality.
-    
+
     Returns:
         Dict containing health status, version, and timestamp
     """
@@ -117,8 +120,10 @@ async def health_check() -> Dict[str, Any]:
         "version": "1.0.0",
         "service": "AutoDevHub API",
         "timestamp": time.time(),
-        "database": "pending",  # Will be updated once database models are ready
-        "ai_service": "pending"  # Will be updated once AI integration is complete
+        "database": "pending",  # Will be updated once database models
+        # are ready
+        "ai_service": "pending"  # Will be updated once AI integration
+        # is complete
     }
 
 
@@ -127,7 +132,7 @@ async def health_check() -> Dict[str, Any]:
 async def root() -> Dict[str, str]:
     """
     Root endpoint providing basic API information.
-    
+
     Returns:
         Dict with welcome message and documentation links
     """
@@ -135,16 +140,12 @@ async def root() -> Dict[str, str]:
         "message": "Welcome to AutoDevHub API",
         "version": "1.0.0",
         "documentation": "/docs",
-        "health_check": "/health"
+        "health_check": "/health",
     }
 
 
 # Include routers
-app.include_router(
-    stories.router,
-    prefix="/api/v1/stories",
-    tags=["Stories"]
-)
+app.include_router(stories.router, prefix="/api/v1/stories", tags=["Stories"])
 
 
 # Application startup event
@@ -165,11 +166,11 @@ async def shutdown_event():
 
 if __name__ == "__main__":
     import uvicorn
-    
+
     uvicorn.run(
         "main:app",
         host="0.0.0.0",
         port=8000,
         reload=settings.debug,
-        log_level="info" if not settings.debug else "debug"
+        log_level="info" if not settings.debug else "debug",
     )

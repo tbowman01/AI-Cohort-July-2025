@@ -2,7 +2,7 @@
 AutoDevHub Backend Dependencies
 
 This module provides dependency injection functions for FastAPI endpoints,
-including database session management, authentication, and other shared resources.
+including database session management, authentication, and other shared\nresources.
 """
 
 from fastapi import Depends, HTTPException, status
@@ -29,7 +29,7 @@ settings = get_settings()
 def get_database_engine():
     """
     Create and cache database engine.
-    
+
     Returns:
         SQLAlchemy Engine configured with application settings
     """
@@ -39,7 +39,7 @@ def get_database_engine():
             settings.database_url,
             echo=settings.database_echo,
             pool_pre_ping=True,
-            connect_args={"check_same_thread": False}
+            connect_args={"check_same_thread": False},
         )
     else:
         # PostgreSQL/other databases with connection pooling
@@ -49,26 +49,24 @@ def get_database_engine():
             pool_pre_ping=True,
             pool_recycle=3600,
             pool_size=10,
-            max_overflow=20
+            max_overflow=20,
         )
     return engine
 
 
 # Create SessionLocal class
 SessionLocal = sessionmaker(
-    autocommit=False,
-    autoflush=False,
-    bind=get_database_engine()
+    autocommit=False, autoflush=False, bind=get_database_engine()
 )
 
 
 def get_database_session() -> Generator[Session, None, None]:
     """
     Dependency to get database session.
-    
+
     Provides a database session for the duration of a request
     and ensures proper cleanup after the request completes.
-    
+
     Yields:
         Session: SQLAlchemy database session
     """
@@ -86,17 +84,17 @@ def get_database_session() -> Generator[Session, None, None]:
 
 
 async def get_current_user(
-    credentials: Optional[HTTPAuthorizationCredentials] = Depends(security)
+    credentials: Optional[HTTPAuthorizationCredentials] = Depends(security),
 ) -> Optional[dict]:
     """
     Dependency to get current authenticated user.
-    
+
     Args:
         credentials: JWT token from Authorization header
-        
+
     Returns:
         dict: User information if authenticated, None if optional
-        
+
     Raises:
         HTTPException: If authentication is required but invalid
     """
@@ -105,20 +103,20 @@ async def get_current_user(
         # This will be updated once user authentication is implemented
         logger.debug("No authentication credentials provided")
         return None
-    
+
     try:
         # TODO: Implement JWT token validation once user models are ready
         # For now, this is a placeholder that allows any bearer token
         token = credentials.credentials
         logger.debug(f"Authentication token received: {token[:10]}...")
-        
+
         # Placeholder user data - replace with actual JWT validation
         return {
             "id": "placeholder-user-id",
             "username": "placeholder-user",
-            "email": "user@example.com"
+            "email": "user@example.com",
         }
-        
+
     except Exception as e:
         logger.error(f"Authentication error: {str(e)}")
         raise HTTPException(
@@ -129,17 +127,17 @@ async def get_current_user(
 
 
 async def require_authentication(
-    current_user: dict = Depends(get_current_user)
+    current_user: dict = Depends(get_current_user),
 ) -> dict:
     """
     Dependency that requires authentication.
-    
+
     Args:
         current_user: Current user from get_current_user dependency
-        
+
     Returns:
         dict: Authenticated user information
-        
+
     Raises:
         HTTPException: If user is not authenticated
     """
@@ -155,7 +153,7 @@ async def require_authentication(
 def get_settings_dependency():
     """
     Dependency to get application settings.
-    
+
     Returns:
         Settings: Application configuration settings
     """
@@ -165,70 +163,71 @@ def get_settings_dependency():
 class RateLimiter:
     """
     Simple rate limiter for API endpoints.
-    
+
     This is a basic implementation that can be enhanced with Redis
     for distributed rate limiting in production.
     """
-    
+
     def __init__(self, max_requests: int = 100, window_seconds: int = 60):
         self.max_requests = max_requests
         self.window_seconds = window_seconds
         self.requests = {}
-    
+
     def is_allowed(self, identifier: str) -> bool:
         """
         Check if request is allowed based on rate limits.
-        
+
         Args:
             identifier: Unique identifier (IP address, user ID, etc.)
-            
+
         Returns:
             bool: True if request is allowed, False if rate limited
         """
         import time
+
         current_time = time.time()
-        
+
         if identifier not in self.requests:
             self.requests[identifier] = []
-        
+
         # Remove expired requests
         self.requests[identifier] = [
-            req_time for req_time in self.requests[identifier]
+            req_time
+            for req_time in self.requests[identifier]
             if current_time - req_time < self.window_seconds
         ]
-        
+
         # Check if under limit
         if len(self.requests[identifier]) < self.max_requests:
             self.requests[identifier].append(current_time)
             return True
-        
+
         return False
 
 
 # Global rate limiter instance
 rate_limiter = RateLimiter(
-    max_requests=settings.rate_limit_requests,
-    window_seconds=settings.rate_limit_period
+    max_requests=settings.rate_limit_requests, window_seconds=settings.rate_limit_period
 )
 
 
 async def check_rate_limit(request_id: str = "default") -> bool:
     """
     Dependency to check rate limits.
-    
+
     Args:
         request_id: Identifier for rate limiting (IP, user ID, etc.)
-        
+
     Returns:
         bool: True if request is allowed
-        
+
     Raises:
         HTTPException: If rate limit is exceeded
     """
     if not rate_limiter.is_allowed(request_id):
         raise HTTPException(
             status_code=status.HTTP_429_TOO_MANY_REQUESTS,
-            detail="Rate limit exceeded. Please try again later."
+            detail="Rate limit exceeded. Please try again later.",
         )
     return True
 
@@ -237,15 +236,15 @@ async def check_rate_limit(request_id: str = "default") -> bool:
 class AIServiceManager:
     """
     Manager for AI service connections and configurations.
-    
+
     This class will handle OpenAI API connections and other AI services
     once they are integrated into the application.
     """
-    
+
     def __init__(self):
         self.openai_client = None
         self._initialize_clients()
-    
+
     def _initialize_clients(self):
         """Initialize AI service clients."""
         try:
@@ -256,14 +255,14 @@ class AIServiceManager:
                 logger.warning("OpenAI API key not configured")
         except Exception as e:
             logger.error(f"Failed to initialize AI services: {str(e)}")
-    
+
     async def generate_story(self, description: str) -> dict:
         """
         Generate Gherkin story from feature description.
-        
+
         Args:
             description: Feature description
-            
+
         Returns:
             dict: Generated story data
         """
@@ -282,8 +281,8 @@ Feature: {description[:100]}
             "acceptance_criteria": [
                 "System should handle the basic use case",
                 "Error handling should be implemented",
-                "Performance should meet requirements"
-            ]
+                "Performance should meet requirements",
+            ],
         }
 
 
@@ -294,7 +293,7 @@ ai_service = AIServiceManager()
 async def get_ai_service() -> AIServiceManager:
     """
     Dependency to get AI service manager.
-    
+
     Returns:
         AIServiceManager: AI service manager instance
     """
@@ -305,7 +304,7 @@ async def get_ai_service() -> AIServiceManager:
 async def check_database_health() -> dict:
     """
     Check database connectivity for health checks.
-    
+
     Returns:
         dict: Database health status
     """
@@ -323,7 +322,7 @@ async def check_database_health() -> dict:
 async def check_ai_service_health() -> dict:
     """
     Check AI service connectivity for health checks.
-    
+
     Returns:
         dict: AI service health status
     """

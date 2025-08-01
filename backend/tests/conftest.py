@@ -1,7 +1,8 @@
 """
 Test configuration and fixtures for AutoDevHub backend tests.
 
-This module provides pytest fixtures and configuration for testing the FastAPI application,
+This module provides pytest fixtures and configuration for testing the
+FastAPI application,
 database models, and dependencies with proper isolation and cleanup.
 """
 
@@ -15,14 +16,16 @@ import pytest
 import pytest_asyncio
 from fastapi.testclient import TestClient
 from httpx import AsyncClient
-from sqlalchemy import create_engine, text
-from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
+from sqlalchemy import create_engine
+from sqlalchemy.ext.asyncio import (
+    AsyncSession, async_sessionmaker, create_async_engine
+)
 from sqlalchemy.orm import Session, sessionmaker
 
 # Import application components
 from main import app
-from config import get_settings, get_testing_settings
-from database import Base, get_db, init_database
+from config import get_testing_settings
+from database import Base, get_db
 from dependencies import get_database_session, get_ai_service, AIServiceManager
 from models import UserStory, Session as SessionModel
 
@@ -76,11 +79,11 @@ async def async_test_engine(temp_db_file):
         echo=False,
         pool_pre_ping=True
     )
-    
+
     # Initialize database tables
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
-    
+
     yield engine
     await engine.dispose()
 
@@ -93,20 +96,21 @@ def db_session(test_engine) -> Generator[Session, None, None]:
         autoflush=False,
         bind=test_engine
     )
-    
+
     with TestingSessionLocal() as session:
         yield session
 
 
 @pytest_asyncio.fixture
-async def async_db_session(async_test_engine) -> AsyncGenerator[AsyncSession, None]:
+async def async_db_session(
+        async_test_engine) -> AsyncGenerator[AsyncSession, None]:
     """Create an async database session for testing."""
     AsyncTestingSessionLocal = async_sessionmaker(
         async_test_engine,
         class_=AsyncSession,
         expire_on_commit=False
     )
-    
+
     async with AsyncTestingSessionLocal() as session:
         yield session
 
@@ -131,7 +135,7 @@ def override_async_get_db(async_db_session):
 def mock_ai_service():
     """Create a mock AI service for testing."""
     mock_service = MagicMock(spec=AIServiceManager)
-    
+
     # Mock the generate_story method
     async def mock_generate_story(description: str) -> dict:
         return {
@@ -147,11 +151,11 @@ Feature: Test Feature for {description[:50]}
             """.strip(),
             "acceptance_criteria": [
                 "Test criterion 1",
-                "Test criterion 2", 
+                "Test criterion 2",
                 "Test criterion 3"
             ]
         }
-    
+
     mock_service.generate_story = AsyncMock(side_effect=mock_generate_story)
     return mock_service
 
@@ -170,10 +174,10 @@ def test_client(override_get_db, override_ai_service):
     # Override dependencies
     app.dependency_overrides[get_database_session] = override_get_db
     app.dependency_overrides[get_ai_service] = override_ai_service
-    
+
     with TestClient(app) as client:
         yield client
-    
+
     # Clear overrides
     app.dependency_overrides.clear()
 
@@ -184,10 +188,10 @@ async def async_test_client(override_async_get_db, override_ai_service):
     # Override dependencies
     app.dependency_overrides[get_db] = override_async_get_db
     app.dependency_overrides[get_ai_service] = override_ai_service
-    
+
     async with AsyncClient(app=app, base_url="http://testserver") as client:
         yield client
-    
+
     # Clear overrides
     app.dependency_overrides.clear()
 
@@ -197,11 +201,10 @@ async def async_test_client(override_async_get_db, override_ai_service):
 def sample_story_data():
     """Sample story data for testing."""
     return {
-        "description": "As a user, I want to create a new account so I can access the system",
+        "description": (\n            "As a user, I want to create a new account so I can access the system"\n        ),
         "project_context": "User management system",
         "story_type": "user_story",
-        "complexity": "medium"
-    }
+        "complexity": "medium"}
 
 
 @pytest.fixture
@@ -225,7 +228,7 @@ Feature: User Account Creation
         "story_type": sample_story_data["story_type"],
         "complexity": sample_story_data["complexity"]
     })
-    
+
     db_session.add(story)
     db_session.commit()
     db_session.refresh(story)
@@ -246,12 +249,12 @@ def sample_session_data():
     }
 
 
-@pytest.fixture 
+@pytest.fixture
 def sample_session(db_session, sample_session_data) -> SessionModel:
     """Create a sample Session in the database."""
     session = SessionModel(user_id=sample_session_data["user_id"])
     session.set_preferences(sample_session_data["preferences"])
-    
+
     db_session.add(session)
     db_session.commit()
     db_session.refresh(session)
@@ -264,9 +267,9 @@ def mock_stories_storage():
     from routers.stories import STORIES_STORAGE
     original_storage = STORIES_STORAGE.copy()
     STORIES_STORAGE.clear()
-    
+
     yield STORIES_STORAGE
-    
+
     # Restore original storage
     STORIES_STORAGE.clear()
     STORIES_STORAGE.update(original_storage)
@@ -288,7 +291,7 @@ def large_dataset_stories(db_session):
             "test_index": i
         })
         stories.append(story)
-    
+
     db_session.add_all(stories)
     db_session.commit()
     return stories
@@ -300,13 +303,15 @@ def simulate_db_error(monkeypatch):
     """Simulate database connection errors."""
     def mock_db_session():
         raise Exception("Database connection failed")
-    
+
     def enable_error():
-        monkeypatch.setattr("dependencies.get_database_session", mock_db_session)
-    
+        monkeypatch.setattr(
+            "dependencies.get_database_session",
+            mock_db_session)
+
     def disable_error():
         monkeypatch.undo()
-    
+
     return {"enable": enable_error, "disable": disable_error}
 
 
@@ -315,10 +320,11 @@ def simulate_ai_service_error(mock_ai_service):
     """Simulate AI service errors."""
     async def mock_generate_story_error(description: str):
         raise Exception("AI service unavailable")
-    
+
     def enable_error():
-        mock_ai_service.generate_story = AsyncMock(side_effect=mock_generate_story_error)
-    
+        mock_ai_service.generate_story = AsyncMock(
+            side_effect=mock_generate_story_error)
+
     def disable_error():
         async def mock_generate_story_success(description: str) -> dict:
             return {
@@ -327,8 +333,9 @@ def simulate_ai_service_error(mock_ai_service):
                 "gherkin": "Feature: Test\nScenario: Test\n  Given test\n  When test\n  Then test",
                 "acceptance_criteria": ["Test criterion"]
             }
-        mock_ai_service.generate_story = AsyncMock(side_effect=mock_generate_story_success)
-    
+        mock_ai_service.generate_story = AsyncMock(
+            side_effect=mock_generate_story_success)
+
     return {"enable": enable_error, "disable": disable_error}
 
 
@@ -401,9 +408,13 @@ def assert_story_list_response_valid(response_data: dict):
     required_fields = ["stories", "total", "page", "page_size", "has_next"]
     for field in required_fields:
         assert field in response_data, f"Missing required field: {field}"
-    
-    assert isinstance(response_data["stories"], list), "stories should be a list"
-    assert isinstance(response_data["total"], int), "total should be an integer"
+
+    assert isinstance(response_data["stories"],
+                      list), "stories should be a list"
+    assert isinstance(response_data["total"],
+                      int), "total should be an integer"
     assert isinstance(response_data["page"], int), "page should be an integer"
-    assert isinstance(response_data["page_size"], int), "page_size should be an integer"
-    assert isinstance(response_data["has_next"], bool), "has_next should be a boolean"
+    assert isinstance(response_data["page_size"],
+                      int), "page_size should be an integer"
+    assert isinstance(response_data["has_next"],
+                      bool), "has_next should be a boolean"

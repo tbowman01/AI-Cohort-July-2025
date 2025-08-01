@@ -1,86 +1,213 @@
-# Claude Code + SPARC/BATCHTOOLS Quick Reference
+# 🤖 Hybrid+ Claude Workflow Configuration (`hybrid-plus-claude.md`)
 
-## 🚨 Absolute Rule: Batch & Parallelize Everything
-- **All related operations (todos, agents, file ops, bash, memory) must be batched in one message.**
-- **Never execute related operations sequentially.**
+## 🧭 Purpose
 
-**Correct:**
-```js
-[Single Message]: TodoWrite([todos]), Task([agents]), Bash([commands]), Write([files])
-```
-**Incorrect:**
-```js
-Message 1: TodoWrite, Message 2: Task, Message 3: Bash
-```
+- ✅ Maintain human-readable task planning and role-driven prompts  
+- ⚡ Maximize batch parallelization with swarm coordination  
+- 🔁 Enable adaptive workflows based on runtime conditions  
+- 🧠 Persist swarm memory and summarize reasoning across PRs  
+- 🛡 Comply with model auditability and provenance tracking  
 
-## SPARC Workflow (Batchtools Enhanced)
-1. **Spec:** `npx claude-flow sparc run spec-pseudocode "<task>" --parallel`
-2. **Pseudo:** `npx claude-flow sparc run spec-pseudocode "<task>" --batch-optimize`
-3. **Arch:** `npx claude-flow sparc run architect "<task>" --parallel`
-4. **Refine:** `npx claude-flow sparc tdd "<feature>" --batch-tdd`
-5. **Integrate:** `npx claude-flow sparc run integration "<task>" --parallel`
+---
 
-## Agent Categories (Examples)
-- Core: coder, reviewer, tester, planner, researcher
-- Coordination: coordinator, mesh, adaptive, swarm-memory
-- Distributed: raft, gossip, consensus, crdt, security
-- GitHub: pr-manager, code-review, issue-tracker, release-manager
-- SPARC: specification, pseudocode, architecture, refinement
+## 🧠 Core Principles
 
-**Concurrent Agent Deployment:**
-```js
-Task("Research requirements", "...", "researcher")
-Task("Plan architecture", "...", "planner")
-Task("Implement features", "...", "coder")
-Task("Create tests", "...", "tester")
-Task("Review code", "...", "reviewer")
-```
+1. All tasks must be declared in a single batched message  
+2. Use `swarm_init` to maximize concurrency and resource allocation  
+3. Enable memory tracking and reuse across sessions  
+4. Capture Claude model identity and actions for transparency  
+5. Support adaptive agents that react to runtime signals (e.g. failed PR checks)  
 
-## Batchtools Features
-- Parallel file/code/test/doc operations
-- Smart batching, pipeline processing, resource management
+---
 
-## Performance
-- 2-4x speedup, 30%+ token reduction, 80%+ solve rate (SWE-Bench)
+## 🔁 Role Definitions
 
-## Best Practices
-- Batch all operations, use memory for coordination, monitor with swarm_status
+| Role               | Responsibilities                                                             | Batch | Adaptive | GitHub Integrated |
+|--------------------|------------------------------------------------------------------------------|-------|----------|-------------------|
+| `planner`          | Translate specs/issues into technical plans                                  | ✅    | ❌        | ✅                 |
+| `coder`            | Generate/modify backend code                                                 | ✅    | ❌        | ✅                 |
+| `reviewer`         | Analyze diffs, style, and quality, post PR comments                          | ✅    | ❌        | ✅                 |
+| `tester`           | Generate, execute, and report on tests                                       | ✅    | ❌        | ✅                 |
+| `adaptive`         | Monitor CI status, spawn agents dynamically (e.g., re-run tests, fix style)  | 🟡    | ✅        | ✅                 |
+| `release-manager`  | Generate changelogs, GitHub Releases, version tags                           | ✅    | ❌        | ✅                 |
 
-## MCP vs Claude Code
-- **MCP:** Plans, coordinates, stores memory, tracks performance
-- **Claude Code:** Executes all real work (file ops, code, bash, todos, git, tests)
+---
 
-## Example: Full-Stack Swarm (Parallel)
+## ⚙️ Batch Workflow Template
+
 ```js
 [BatchTool]:
-  mcp__claude-flow__swarm_init { topology: "hierarchical", maxAgents: 8 }
-    mcp__claude-flow__agent_spawn { type: "architect" }
-      mcp__claude-flow__agent_spawn { type: "coder" }
-        mcp__claude-flow__agent_spawn { type: "tester" }
-          TodoWrite { todos: [multiple todos] }
-            Bash("mkdir -p app/{src,tests,docs}")
-              Write("app/package.json")
-              ```
+  mcp__claude-flow__swarm_init {
+    topology: "flat",
+    maxAgents: 6,
+    memory: true,
+    auditLedger: true
+  }
 
-              ## Coordination Protocol (Every Agent)
-              - Pre-task: `npx claude-flow@alpha hooks pre-task`
-              - Post-edit: `npx claude-flow@alpha hooks post-edit`
-              - Notify: `npx claude-flow@alpha hooks notify`
-              - Post-task: `npx claude-flow@alpha hooks post-task`
+  mcp__claude-flow__agent_spawn { type: "planner" }
+  mcp__claude-flow__agent_spawn { type: "coder" }
+  mcp__claude-flow__agent_spawn { type: "reviewer" }
+  mcp__claude-flow__agent_spawn { type: "tester" }
+  mcp__claude-flow__agent_spawn { type: "adaptive" }
 
-              ## Visual Progress Format
-              ```
-              📊 Progress
-              ├── Total: X
-              ├── ✅ Completed: X
-              ├── 🔄 In Progress: X
-              ├── ⭕ Todo: X
-              └── ❌ Blocked: X
-              ```
+  TodoWrite {
+    todos: [
+      "Plan API spec for new subscription flow",
+      "Write implementation logic for endpoint",
+      "Generate tests and validate coverage",
+      "Monitor PR checks, re-trigger if failed"
+    ]
+  }
 
-              ## Links
-              - [SPARC Guide](https://github.com/ruvnet/claude-code-flow/docs/sparc.md)
-              - [Batchtools Docs](https://github.com/ruvnet/claude-code-flow/docs/batchtools.md)
-              - [Claude Flow](https://github.com/ruvnet/claude-flow)
+  Bash("mkdir -p src/subscription && touch src/subscription/endpoint.ts")
+  Write("src/subscription/endpoint.ts")
 
-              
+  MemoryWrite("swarm-graph", {
+    key: "pr-#94-subscription",
+    tags: ["API", "backend", "coverage"],
+    insights: [
+      "used zod for input validation",
+      "added JWT check for secure access"
+    ]
+  })
+
+  LedgerLog("claude-3-opus", "coder", "sha256:ab8e...", "Add subscription endpoint", "2025-08-01T15:20Z")
+````
+
+---
+
+## 📑 Prompt Templates
+
+### 🧠 `planner`
+
+```
+System: You are a software architect.
+Prompt: Break down the feature "<feature>" into implementable backend tasks and acceptance criteria.
+```
+
+### 🧑‍💻 `coder`
+
+```
+System: You are a secure backend developer.
+Prompt: Implement "<feature>" using TypeScript. Follow existing patterns and include doc comments.
+```
+
+### 🧪 `tester`
+
+```
+System: You are a QA engineer.
+Prompt: Generate test cases for "<module>". Cover edge cases and validate all branches.
+```
+
+### 👀 `reviewer`
+
+```
+System: You are a senior reviewer.
+Prompt: Review this PR diff. Identify bugs, style violations, and logic errors. Use bullets.
+```
+
+### 🔁 `adaptive`
+
+```
+System: You are an adaptive DevOps agent.
+Prompt: Monitor CI checks and trigger agents (e.g. tester or formatter) based on failures.
+```
+
+---
+
+## 🔐 Permissions
+
+```json
+{
+  "permissions": {
+    "allow": [
+      "Edit",
+      "Write",
+      "Bash(npm *)",
+      "Bash(pytest *)",
+      "Bash(gh *)",
+      "Bash(git *)",
+      "mcp__claude-flow__*",
+      "MemoryWrite",
+      "LedgerLog"
+    ]
+  }
+}
+```
+
+---
+
+## 📊 Progress & Observability
+
+### Format for Swarm Status Updates
+
+```
+📊 Claude Swarm Progress
+├── Total: 5
+├── ✅ Completed: 3
+├── 🔄 In Progress: 1
+├── ⭕ Todo: 1
+└── ❌ Blocked: 0
+```
+
+### Trigger for real-time update
+
+```bash
+npx claude-flow hooks post-edit | tee swarm-status.log
+```
+
+---
+
+## 📁 Ledger + Memory Usage
+
+### Memory Write Example
+
+```json
+{
+  "key": "user-flow-refactor",
+  "tags": ["auth", "jwt", "performance"],
+  "insights": [
+    "replaced bcrypt with argon2",
+    "removed redundant DB calls in middleware"
+  ]
+}
+```
+
+### Ledger Log Example
+
+```json
+{
+  "model": "claude-3-opus",
+  "agent": "reviewer",
+  "task": "Review login refactor PR",
+  "hash": "sha256:eeb9...",
+  "timestamp": "2025-08-01T15:00:00Z"
+}
+```
+
+Stored under: `.claude-ledger/pr-<number>.json`
+
+---
+
+## 🧩 Coordination Hooks
+
+```bash
+npx claude-flow@alpha hooks pre-task
+npx claude-flow@alpha hooks post-edit
+npx claude-flow@alpha hooks notify
+npx claude-flow@alpha hooks post-task
+```
+
+---
+
+## 🔗 CLI Commands
+
+| Task          | Command                                                            |
+| ------------- | ------------------------------------------------------------------ |
+| Spec + Plan   | `npx claude-flow sparc run spec-pseudocode "<task>" --parallel`    |
+| Implement     | `npx claude-flow sparc run architect "<task>" --parallel`          |
+| Test/Validate | `npx claude-flow sparc tdd "<feature>" --batch-tdd`                |
+| PR Integrate  | `npx claude-flow sparc run integration "<task>" --parallel`        |
+| Release       | `npx claude-flow release-manager generate --from main --to v1.2.0` |
+
+---

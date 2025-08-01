@@ -2,12 +2,13 @@
 Story Generation Service for AutoDevHub
 
 This service converts natural language feature descriptions into structured
-Gherkin user stories using template-based generation for reliable demo functionality.
+Gherkin user stories using template-based generation for reliable demo
+functionality.
 """
 
 import re
 import logging
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Tuple
 from datetime import datetime
 from enum import Enum
 
@@ -35,7 +36,7 @@ class Priority(Enum):
 
 class StoryTemplate:
     """Template patterns for generating Gherkin stories"""
-    
+
     # Common user roles detected from feature descriptions
     USER_ROLES = {
         'auth': 'user',
@@ -59,7 +60,7 @@ class StoryTemplate:
         'upload': 'user',
         'download': 'user'
     }
-    
+
     # Template patterns for different feature types
     FEATURE_PATTERNS = {
         'authentication': {
@@ -193,52 +194,57 @@ class StoryTemplate:
 
 class StoryGenerator:
     """Main service class for generating Gherkin user stories"""
-    
+
     def __init__(self):
         """Initialize the story generator with templates"""
         self.templates = StoryTemplate()
         logger.info("StoryGenerator initialized with template-based generation")
-    
+
     def generate_gherkin_story(
-        self, 
-        feature_description: str, 
+        self,
+        feature_description: str,
         story_type: StoryType = StoryType.STORY,
         priority: Priority = Priority.MEDIUM
     ) -> Dict:
         """
         Generate a Gherkin-formatted user story from natural language description
-        
+
         Args:
             feature_description: Natural language description of the feature
             story_type: Type of story (epic, feature, story, task)
             priority: Priority level for the story
-            
+
         Returns:
             Dictionary containing the generated story with metadata
         """
         try:
             logger.info(f"Generating story for: {feature_description[:50]}...")
-            
+
             # Validate input
             if not feature_description or not feature_description.strip():
                 raise ValueError("Feature description cannot be empty")
-            
+
             # Clean and normalize the description
-            normalized_description = self._normalize_description(feature_description)
-            
+            normalized_description = self._normalize_description(
+                feature_description)
+
             # Detect feature type and extract components
             feature_type = self._detect_feature_type(normalized_description)
-            components = self._extract_story_components(normalized_description, feature_type)
-            
+            components = self._extract_story_components(
+                normalized_description, feature_type)
+
             # Generate the Gherkin story
-            gherkin_content = self._generate_gherkin_content(components, feature_type)
-            
+            gherkin_content = self._generate_gherkin_content(
+                components, feature_type)
+
             # Calculate estimated effort (story points)
-            estimated_effort = self._estimate_effort(normalized_description, feature_type)
-            
+            estimated_effort = self._estimate_effort(
+                normalized_description, feature_type)
+
             # Generate acceptance criteria
-            acceptance_criteria = self._generate_acceptance_criteria(components, feature_type)
-            
+            acceptance_criteria = self._generate_acceptance_criteria(
+                components, feature_type)
+
             # Create response object
             story_result = {
                 'story_id': self._generate_story_id(),
@@ -252,101 +258,147 @@ class StoryGenerator:
                 'generated_at': datetime.utcnow().isoformat(),
                 'components': components
             }
-            
-            logger.info(f"Successfully generated story with ID: {story_result['story_id']}")
+
+            logger.info(
+                f"Successfully generated story with ID: {
+                    story_result['story_id']}")
             return story_result
-            
+
         except Exception as e:
             logger.error(f"Error generating story: {str(e)}")
             raise
-    
+
     def _normalize_description(self, description: str) -> str:
         """Clean and normalize the feature description"""
         # Remove extra whitespace and normalize case
         normalized = re.sub(r'\s+', ' ', description.strip().lower())
-        
+
         # Remove common filler words for better analysis
-        filler_words = ['the', 'a', 'an', 'and', 'or', 'but', 'in', 'on', 'at', 'to', 'for', 'of', 'with', 'by']
+        filler_words = [
+            'the',
+            'a',
+            'an',
+            'and',
+            'or',
+            'but',
+            'in',
+            'on',
+            'at',
+            'to',
+            'for',
+            'of',
+            'with',
+            'by']
         words = normalized.split()
-        filtered_words = [word for word in words if word not in filler_words or len(words) <= 3]
-        
+        filtered_words = [
+            word for word in words if word not in filler_words or len(words) <= 3]
+
         return ' '.join(filtered_words)
-    
+
     def _detect_feature_type(self, description: str) -> str:
         """Detect the type of feature based on keywords in the description"""
         description_lower = description.lower()
-        
+
         # Score each feature type based on keyword matches
         type_scores = {}
         for feature_type, config in self.templates.FEATURE_PATTERNS.items():
-            score = sum(1 for keyword in config['keywords'] if keyword in description_lower)
+            score = sum(
+                1 for keyword in config['keywords'] if keyword in description_lower)
             if score > 0:
                 type_scores[feature_type] = score
-        
-        # Return the feature type with the highest score, or 'general' if no match
+
+        # Return the feature type with the highest score, or 'general' if no
+        # match
         if type_scores:
             return max(type_scores, key=type_scores.get)
         else:
             return 'general'
-    
-    def _extract_story_components(self, description: str, feature_type: str) -> Dict:
+
+    def _extract_story_components(
+            self,
+            description: str,
+            feature_type: str) -> Dict:
         """Extract key components from the feature description"""
         components = {
             'role': self._extract_user_role(description),
             'action': self._extract_action(description),
             'benefit': self._extract_benefit(description),
-            'feature_name': self._extract_feature_name(description, feature_type)
-        }
-        
+            'feature_name': self._extract_feature_name(
+                description,
+                feature_type)}
+
         return components
-    
+
     def _extract_user_role(self, description: str) -> str:
         """Determine the appropriate user role based on the description"""
         description_lower = description.lower()
-        
+
         for keyword, role in self.templates.USER_ROLES.items():
             if keyword in description_lower:
                 return role
-        
+
         return 'user'  # Default role
-    
+
     def _extract_action(self, description: str) -> str:
         """Extract the main action from the description"""
         # Look for action verbs and construct a meaningful action phrase
-        action_verbs = ['create', 'add', 'update', 'edit', 'delete', 'remove', 'view', 'see', 'manage', 
-                       'search', 'find', 'upload', 'download', 'send', 'receive', 'login', 'register',
-                       'authenticate', 'access', 'configure', 'setup', 'enable', 'disable']
-        
+        action_verbs = [
+            'create',
+            'add',
+            'update',
+            'edit',
+            'delete',
+            'remove',
+            'view',
+            'see',
+            'manage',
+            'search',
+            'find',
+            'upload',
+            'download',
+            'send',
+            'receive',
+            'login',
+            'register',
+            'authenticate',
+            'access',
+            'configure',
+            'setup',
+            'enable',
+            'disable']
+
         description_words = description.split()
-        
+
         # Find action verbs in the description
         found_actions = []
         for word in description_words:
             if word in action_verbs:
                 found_actions.append(word)
-        
+
         if found_actions:
             primary_action = found_actions[0]
             # Try to find the object of the action
             try:
                 action_index = description_words.index(primary_action)
                 if action_index < len(description_words) - 1:
-                    object_part = ' '.join(description_words[action_index + 1:action_index + 3])
+                    object_part = ' '.join(
+                        description_words[action_index + 1:action_index + 3])
                     return f"{primary_action} {object_part}".strip()
             except ValueError:
                 pass
-            
+
             return primary_action
-        
+
         # If no action verb found, construct from the description
-        return f"use {description.split()[0] if description.split() else 'the system'}"
-    
+        return f"use {
+            description.split()[0] if description.split() else 'the system'}"
+
     def _extract_benefit(self, description: str) -> str:
         """Extract or infer the benefit from the description"""
         # Common benefit patterns
         benefits = {
             'auth': 'securely access my account',
-            'login': 'access the system securely', 
+            'login': 'access the system securely',
             'search': 'quickly find the information I need',
             'upload': 'share and store my files',
             'manage': 'efficiently organize my data',
@@ -355,13 +407,13 @@ class StoryGenerator:
             'dashboard': 'have an overview of my information',
             'profile': 'maintain my personal information'
         }
-        
+
         description_lower = description.lower()
-        
+
         for keyword, benefit in benefits.items():
             if keyword in description_lower:
                 return benefit
-        
+
         # Default benefit based on common patterns
         if any(word in description_lower for word in ['create', 'add', 'new']):
             return 'easily add new information to the system'
@@ -371,8 +423,11 @@ class StoryGenerator:
             return 'access the information I need'
         else:
             return 'accomplish my goals efficiently'
-    
-    def _extract_feature_name(self, description: str, feature_type: str) -> str:
+
+    def _extract_feature_name(
+            self,
+            description: str,
+            feature_type: str) -> str:
         """Generate an appropriate feature name"""
         if feature_type in self.templates.FEATURE_PATTERNS:
             base_name = self.templates.FEATURE_PATTERNS[feature_type]['template']['feature']
@@ -380,10 +435,13 @@ class StoryGenerator:
             # Create a name from the description
             words = description.split()[:3]  # Take first 3 words
             base_name = ' '.join(word.capitalize() for word in words)
-        
+
         return base_name
-    
-    def _generate_gherkin_content(self, components: Dict, feature_type: str) -> str:
+
+    def _generate_gherkin_content(
+            self,
+            components: Dict,
+            feature_type: str) -> str:
         """Generate the formatted Gherkin content"""
         # Get template for the feature type
         if feature_type in self.templates.FEATURE_PATTERNS:
@@ -399,7 +457,7 @@ class StoryGenerator:
                     'then': f'I should be able to {components["benefit"]}'
                 }
             ]
-        
+
         # Build the Gherkin content
         gherkin_lines = [
             f"Feature: {components['feature_name']}",
@@ -408,7 +466,7 @@ class StoryGenerator:
             f"  So that I can {components['benefit']}",
             ""
         ]
-        
+
         # Add scenarios
         for scenario in scenarios:
             gherkin_lines.extend([
@@ -418,28 +476,35 @@ class StoryGenerator:
                 f"    Then {scenario['then']}",
                 ""
             ])
-        
+
         return '\n'.join(gherkin_lines).rstrip()
-    
-    def _generate_acceptance_criteria(self, components: Dict, feature_type: str) -> List[str]:
+
+    def _generate_acceptance_criteria(
+            self,
+            components: Dict,
+            feature_type: str) -> List[str]:
         """Generate acceptance criteria for the story"""
         criteria = []
-        
+
         # Base criteria from templates
         if feature_type in self.templates.FEATURE_PATTERNS:
             template = self.templates.FEATURE_PATTERNS[feature_type]['template']
             for scenario in template['scenarios']:
-                criteria.append(f"Given {scenario['given']}, when {scenario['when']}, then {scenario['then']}")
-        
+                criteria.append(
+                    f"Given {
+                        scenario['given']}, when {
+                        scenario['when']}, then {
+                        scenario['then']}")
+
         # Add common criteria
         criteria.extend([
             f"The {components['role']} should be able to {components['action']} successfully",
             "Appropriate error messages should be displayed for invalid inputs",
             "The feature should work across different browsers and devices"
         ])
-        
+
         return criteria
-    
+
     def _estimate_effort(self, description: str, feature_type: str) -> int:
         """Estimate story points based on complexity indicators"""
         # Base effort by feature type
@@ -452,9 +517,9 @@ class StoryGenerator:
             'notification': 3,
             'general': 3
         }
-        
+
         base_effort = base_efforts.get(feature_type, 3)
-        
+
         # Adjust based on complexity indicators
         complexity_keywords = {
             'integration': 2,
@@ -471,17 +536,17 @@ class StoryGenerator:
             'complex': 2,
             'multiple': 1
         }
-        
+
         description_lower = description.lower()
         complexity_bonus = 0
-        
+
         for keyword, bonus in complexity_keywords.items():
             if keyword in description_lower:
                 complexity_bonus += bonus
-        
+
         # Calculate final effort (story points: 1, 2, 3, 5, 8, 13)
         total_effort = base_effort + complexity_bonus
-        
+
         # Map to Fibonacci story points
         if total_effort <= 2:
             return 1
@@ -495,46 +560,50 @@ class StoryGenerator:
             return 8
         else:
             return 13
-    
+
     def _generate_story_id(self) -> str:
         """Generate a unique story ID"""
         timestamp = datetime.utcnow().strftime("%Y%m%d_%H%M%S")
         return f"STORY_{timestamp}"
-    
+
     def refine_story(
-        self, 
-        story_id: str, 
-        refinement_feedback: str, 
+        self,
+        story_id: str,
+        refinement_feedback: str,
         original_story: Dict
     ) -> Dict:
         """
         Refine an existing story based on feedback
-        
+
         Args:
             story_id: ID of the story to refine
             refinement_feedback: User feedback for refinement
             original_story: The original story dictionary
-            
+
         Returns:
             Refined story dictionary
         """
         try:
-            logger.info(f"Refining story {story_id} with feedback: {refinement_feedback[:50]}...")
-            
+            logger.info(
+                f"Refining story {story_id} with feedback: "
+                f"{refinement_feedback[:50]}..."
+            )
+
             # Parse refinement feedback for additional requirements
-            additional_requirements = self._parse_refinement_feedback(refinement_feedback)
-            
+            self._parse_refinement_feedback(refinement_feedback)
+
             # Update the original story with refinements
             refined_story = original_story.copy()
-            
+
             # Re-generate with additional context
-            combined_description = f"{original_story['feature_description']} {refinement_feedback}"
+            combined_description = f"{
+                original_story['feature_description']} {refinement_feedback}"
             refined_result = self.generate_gherkin_story(
                 combined_description,
                 StoryType(original_story['story_type']),
                 Priority(original_story['priority'])
             )
-            
+
             # Merge the results
             refined_story.update({
                 'gherkin_content': refined_result['gherkin_content'],
@@ -544,21 +613,21 @@ class StoryGenerator:
                 'refined_at': datetime.utcnow().isoformat(),
                 'version': refined_story.get('version', 1) + 1
             })
-            
+
             logger.info(f"Successfully refined story {story_id}")
             return refined_story
-            
+
         except Exception as e:
             logger.error(f"Error refining story {story_id}: {str(e)}")
             raise
-    
+
     def _parse_refinement_feedback(self, feedback: str) -> List[str]:
         """Parse refinement feedback for additional requirements"""
         # Simple parsing - could be enhanced with NLP
         requirements = []
-        
+
         feedback_lower = feedback.lower()
-        
+
         # Look for explicit additions
         if 'add' in feedback_lower:
             requirements.append(feedback.strip())
@@ -566,42 +635,45 @@ class StoryGenerator:
             requirements.append(feedback.strip())
         if 'also' in feedback_lower:
             requirements.append(feedback.strip())
-        
+
         return requirements
-    
-    def validate_gherkin_syntax(self, gherkin_content: str) -> Tuple[bool, List[str]]:
+
+    def validate_gherkin_syntax(
+            self, gherkin_content: str) -> Tuple[bool, List[str]]:
         """
         Validate Gherkin syntax and return issues if any
-        
+
         Args:
             gherkin_content: The Gherkin content to validate
-            
+
         Returns:
             Tuple of (is_valid, list_of_issues)
         """
         issues = []
         is_valid = True
-        
+
         try:
             lines = gherkin_content.split('\n')
-            
+
             # Check for required keywords
-            has_feature = any(line.strip().startswith('Feature:') for line in lines)
+            has_feature = any(line.strip().startswith('Feature:')
+                              for line in lines)
             if not has_feature:
                 issues.append("Missing 'Feature:' declaration")
                 is_valid = False
-            
-            has_scenario = any(line.strip().startswith('Scenario:') for line in lines)
+
+            has_scenario = any(line.strip().startswith('Scenario:')
+                               for line in lines)
             if not has_scenario:
                 issues.append("Missing 'Scenario:' declaration")
                 is_valid = False
-            
+
             # Check for Given-When-Then structure
             scenario_started = False
             has_given = False
             has_when = False
             has_then = False
-            
+
             for line in lines:
                 stripped = line.strip()
                 if stripped.startswith('Scenario:'):
@@ -614,7 +686,7 @@ class StoryGenerator:
                         has_when = True
                     elif stripped.startswith('Then'):
                         has_then = True
-            
+
             if scenario_started and not (has_given and has_when and has_then):
                 missing_steps = []
                 if not has_given:
@@ -625,11 +697,11 @@ class StoryGenerator:
                     missing_steps.append('Then')
                 issues.append(f"Missing step(s): {', '.join(missing_steps)}")
                 is_valid = False
-            
+
         except Exception as e:
             issues.append(f"Syntax validation error: {str(e)}")
             is_valid = False
-        
+
         return is_valid, issues
 
 
@@ -649,7 +721,7 @@ def generate_story_from_description(description: str) -> Dict:
 if __name__ == "__main__":
     # Example usage
     generator = StoryGenerator()
-    
+
     # Test with different types of features
     test_descriptions = [
         "User authentication with social login",
@@ -659,16 +731,18 @@ if __name__ == "__main__":
         "API endpoint for user data",
         "Real-time notifications for chat messages"
     ]
-    
+
     print("=== Story Generator Demo ===\n")
-    
+
     for description in test_descriptions:
         print(f"Input: {description}")
         try:
             result = generator.generate_gherkin_story(description)
             print(f"Generated Story (ID: {result['story_id']}):")
             print(result['gherkin_content'])
-            print(f"Estimated Effort: {result['estimated_effort']} story points")
+            print(
+                f"Estimated Effort: {
+                    result['estimated_effort']} story points")
             print("-" * 50)
         except Exception as e:
             print(f"Error: {e}")

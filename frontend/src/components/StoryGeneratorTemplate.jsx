@@ -150,7 +150,7 @@ Generated on: ${new Date().toLocaleDateString()}`;
       await navigator.clipboard.writeText(generatedStory);
       setMessage({ type: 'success', content: 'Story copied to clipboard!' });
       setTimeout(() => setMessage({ type: '', content: '' }), 3000);
-    } catch (error) {
+    } catch {
       setMessage({ type: 'error', content: 'Failed to copy to clipboard' });
     }
   };
