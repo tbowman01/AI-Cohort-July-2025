@@ -1,0 +1,38 @@
+# Code Owners for AutoDevHub
+# This file defines who must review changes to specific parts of the codebase
+
+# Global owners for the entire repository
+* @ai-cohort-july-2025
+
+# GitHub Actions workflows - require review for CI/CD changes
+/.github/workflows/ @ai-cohort-july-2025/devops-team @ai-cohort-july-2025/admin
+
+# Frontend specific files
+/frontend/ @ai-cohort-july-2025/frontend-team
+/frontend/src/components/ @ai-cohort-july-2025/frontend-team
+/frontend/package.json @ai-cohort-july-2025/frontend-team @ai-cohort-july-2025/admin
+
+# Backend specific files
+/backend/ @ai-cohort-july-2025/backend-team
+/backend/routers/ @ai-cohort-july-2025/backend-team
+/backend/services/ @ai-cohort-july-2025/backend-team
+/backend/requirements.txt @ai-cohort-july-2025/backend-team @ai-cohort-july-2025/admin
+
+# Configuration files - require admin review
+pyproject.toml @ai-cohort-july-2025/admin
+requirements.txt @ai-cohort-july-2025/admin
+/.github/CODEOWNERS @ai-cohort-july-2025/admin
+
+# Documentation
+/docs/ @ai-cohort-july-2025/docs-team
+README.md @ai-cohort-july-2025/docs-team
+/docs/adr/ @ai-cohort-july-2025/admin @ai-cohort-july-2025/architecture-team
+
+# Security and deployment
+/deployment/ @ai-cohort-july-2025/devops-team @ai-cohort-july-2025/admin
+bandit-report.json @ai-cohort-july-2025/security-team
+
+# Database and configuration
+/backend/models.py @ai-cohort-july-2025/backend-team @ai-cohort-july-2025/database-team
+/backend/database.py @ai-cohort-july-2025/backend-team @ai-cohort-july-2025/database-team
+/backend/config.py @ai-cohort-july-2025/backend-team @ai-cohort-july-2025/admin

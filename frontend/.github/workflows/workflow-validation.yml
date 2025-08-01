@@ -1,0 +1,216 @@
+name: Workflow Validation
+
+on:
+  push:
+    paths:
+      - '.github/workflows/**'
+  pull_request:
+    paths:
+      - '.github/workflows/**'
+
+jobs:
+  validate-workflows:
+    name: Validate GitHub Actions Workflows
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js for workflow validation
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install workflow validation tools
+        run: |
+          npm install -g @github/workflow-parser
+          curl -sSL https://github.com/rhymond/yamllint-github-action/releases/latest/download/yamllint-github-action_linux_amd64.tar.gz | tar -xz
+
+      - name: Validate YAML syntax
+        run: |
+          echo "🔍 Validating YAML syntax for all workflow files..."
+          for file in .github/workflows/*.yml .github/workflows/*.yaml; do
+            if [ -f "$file" ]; then
+              echo "Validating: $file"
+              python -c "import yaml; yaml.safe_load(open('$file'))" || exit 1
+            fi
+          done
+
+      - name: Check workflow file naming
+        run: |
+          echo "📝 Checking workflow file naming conventions..."
+          for file in .github/workflows/*; do
+            filename=$(basename "$file")
+            if [[ ! "$filename" =~ ^[a-z0-9-]+\.(yml|yaml)$ ]]; then
+              echo "❌ Invalid workflow filename: $filename"
+              echo "Workflow filenames should use lowercase letters, numbers, and hyphens only"
+              exit 1
+            fi
+          done
+
+      - name: Validate required workflow components
+        run: |
+          echo "🔧 Validating required workflow components..."
+          
+          # Check for required workflows
+          required_workflows=("ci-cd.yml" "test-and-lint.yml" "build-and-deploy.yml" "release.yml")
+          
+          for workflow in "${required_workflows[@]}"; do
+            if [ ! -f ".github/workflows/$workflow" ]; then
+              echo "❌ Missing required workflow: $workflow"
+              exit 1
+            else
+              echo "✅ Found required workflow: $workflow"
+            fi
+          done
+
+      - name: Check for security best practices
+        run: |
+          echo "🔒 Checking security best practices..."
+          
+          # Check for hardcoded secrets
+          if grep -r "password\|secret\|token\|key" .github/workflows/ --include="*.yml" --include="*.yaml" | grep -v "\${{" | grep -v "secrets\." | grep -v "GITHUB_TOKEN"; then
+            echo "❌ Found potential hardcoded secrets in workflows"
+            exit 1
+          fi
+          
+          # Check for proper secret usage
+          if ! grep -r "secrets\." .github/workflows/ --include="*.yml" --include="*.yaml" > /dev/null; then
+            echo "⚠️  No secrets usage found - this might be expected for open source projects"
+          fi
+
+      - name: Validate job dependencies
+        run: |
+          echo "🔗 Validating job dependencies..."
+          
+          # Simple check for circular dependencies (basic validation)
+          python3 << 'EOF'
+          import yaml
+          import os
+          import glob
+          
+          def check_workflows():
+              workflow_files = glob.glob('.github/workflows/*.yml') + glob.glob('.github/workflows/*.yaml')
+              
+              for file_path in workflow_files:
+                  with open(file_path, 'r') as f:
+                      try:
+                          workflow = yaml.safe_load(f)
+                          jobs = workflow.get('jobs', {})
+                          
+                          print(f"Checking dependencies in {os.path.basename(file_path)}:")
+                          
+                          for job_name, job_config in jobs.items():
+                              needs = job_config.get('needs', [])
+                              if needs:
+                                  if isinstance(needs, str):
+                                      needs = [needs]
+                                  print(f"  Job '{job_name}' depends on: {needs}")
+                                  
+                                  # Check that dependencies exist in the same workflow
+                                  for dep in needs:
+                                      if dep not in jobs:
+                                          print(f"    ❌ Dependency '{dep}' not found in workflow")
+                                          return False
+                              else:
+                                  print(f"  Job '{job_name}' has no dependencies")
+                      except Exception as e:
+                          print(f"❌ Error parsing {file_path}: {e}")
+                          return False
+              return True
+          
+          if not check_workflows():
+              exit(1)
+          else:
+              print("✅ All job dependencies are valid")
+          EOF
+
+      - name: Check for performance optimizations
+        run: |
+          echo "⚡ Checking for performance optimizations..."
+          
+          # Check for caching usage
+          if grep -r "cache:" .github/workflows/ --include="*.yml" --include="*.yaml" > /dev/null; then
+            echo "✅ Found caching configuration"
+          else
+            echo "⚠️  No caching found - consider adding cache for dependencies"
+          fi
+          
+          # Check for parallel job execution
+          parallel_jobs=$(grep -r "strategy:" .github/workflows/ --include="*.yml" --include="*.yaml" | wc -l)
+          if [ "$parallel_jobs" -gt 0 ]; then
+            echo "✅ Found $parallel_jobs matrix/parallel strategies"
+          else
+            echo "⚠️  No parallel execution strategies found"
+          fi
+
+      - name: Generate workflow summary
+        run: |
+          echo "📊 Workflow Summary:"
+          echo "==================="
+          
+          total_workflows=$(find .github/workflows -name "*.yml" -o -name "*.yaml" | wc -l)
+          echo "Total workflows: $total_workflows"
+          
+          for file in .github/workflows/*.yml .github/workflows/*.yaml; do
+            if [ -f "$file" ]; then
+              filename=$(basename "$file")
+              triggers=$(grep -A 10 "^on:" "$file" | grep -E "^\s+\w+" | wc -l)
+              jobs=$(grep -E "^\s+\w+:" "$file" | grep -v "^on:" | wc -l)
+              echo "$filename: $triggers triggers, $jobs jobs"
+            fi
+          done
+
+  test-workflow-triggers:
+    name: Test Workflow Triggers
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Simulate workflow triggers
+        run: |
+          echo "🧪 Testing workflow trigger conditions..."
+          
+          # Check if current event would trigger each workflow
+          python3 << 'EOF'
+          import yaml
+          import os
+          import glob
+          
+          def test_triggers():
+              current_event = os.environ.get('GITHUB_EVENT_NAME', 'push')
+              current_ref = os.environ.get('GITHUB_REF', 'refs/heads/main')
+              
+              print(f"Current event: {current_event}")
+              print(f"Current ref: {current_ref}")
+              print()
+              
+              workflow_files = glob.glob('.github/workflows/*.yml') + glob.glob('.github/workflows/*.yaml')
+              
+              for file_path in workflow_files:
+                  filename = os.path.basename(file_path)
+                  
+                  with open(file_path, 'r') as f:
+                      workflow = yaml.safe_load(f)
+                      triggers = workflow.get('on', {})
+                      
+                      would_trigger = False
+                      
+                      if isinstance(triggers, str):
+                          if triggers == current_event:
+                              would_trigger = True
+                      elif isinstance(triggers, list):
+                          if current_event in triggers:
+                              would_trigger = True
+                      elif isinstance(triggers, dict):
+                          if current_event in triggers:
+                              would_trigger = True
+                      
+                      status = "✅" if would_trigger else "⭕"
+                      print(f"{status} {filename}: {'Would trigger' if would_trigger else 'Would not trigger'}")
+          
+          test_triggers()
+          EOF
