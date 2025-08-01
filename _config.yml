@@ -1,155 +1,106 @@
-# Jekyll Configuration for AutoDevHub GitHub Pages
-# Based on ADR-006 Documentation Hosting Strategy
-
-# Site settings
+# AutoDevHub Documentation Site Configuration
 title: "AutoDevHub Documentation"
-description: "AI-Powered DevOps Tracker - Capstone Project Documentation"
-url: "https://ai-cohort-july-2025.github.io" # Update with actual GitHub Pages URL
-baseurl: "" # Leave empty for user/org pages
+description: "AI-Powered DevOps Tracker - Comprehensive Project Documentation"
+baseurl: "/AI-Cohort-July-2025"
+url: "https://ai-cohort-july-2025.github.io"
 
-# Build settings
+# GitHub Pages settings
+remote_theme: minima
 markdown: kramdown
 highlighter: rouge
-theme: minima
+kramdown:
+  input: GFM
+  syntax_highlighter: rouge
 
-# Plugin configuration
+# Plugins
 plugins:
   - jekyll-feed
   - jekyll-sitemap
   - jekyll-seo-tag
-
-# Kramdown settings
-kramdown:
-  input: GFM
-  syntax_highlighter: rouge
-  syntax_highlighter_opts:
-    css_class: 'highlight'
-    span:
-      line_numbers: false
-    block:
-      line_numbers: true
-
-# Collections
-collections:
-  adr:
-    output: true
-    permalink: /:collection/:name/
-  architecture:
-    output: true
-    permalink: /:collection/:name/
-  development:
-    output: true
-    permalink: /:collection/:name/
-
-# Defaults
-defaults:
-  - scope:
-      path: ""
-      type: "posts"
-    values:
-      layout: "post"
-      author: "AI Cohort July 2025"
-  - scope:
-      path: ""
-      type: "adr"
-    values:
-      layout: "page"
-      nav_order: 3
-  - scope:
-      path: ""
-      type: "architecture"
-    values:
-      layout: "page"
-      nav_order: 2
-  - scope:
-      path: ""
-      type: "development"
-    values:
-      layout: "page"
-      nav_order: 4
+  - jekyll-mermaid
 
 # Navigation structure
 navigation:
   - title: "Home"
     url: "/"
   - title: "Architecture"
-    url: "/architecture/"
+    url: "/docs/architecture/"
+    children:
+      - title: "System Overview"
+        url: "/docs/architecture/system-overview/"
+      - title: "API Specification"
+        url: "/docs/architecture/api-specification/"
+      - title: "Database Schema"
+        url: "/docs/architecture/database-schema/"
   - title: "ADRs"
-    url: "/adr/"
+    url: "/docs/adr/"
   - title: "Development"
-    url: "/development/"
+    url: "/docs/development/"
+    children:
+      - title: "Setup Guide"
+        url: "/docs/development/setup-guide/"
+      - title: "Deployment"
+        url: "/docs/development/deployment/"
+      - title: "Contributing"
+        url: "/docs/development/contributing/"
   - title: "Presentation"
-    url: "/presentation/"
+    url: "/docs/presentation/"
 
-# Mermaid diagram support
+# Mermaid configuration
 mermaid:
-  src: 'https://unpkg.com/mermaid@10.6.0/dist/mermaid.min.js'
+  src: 'https://unpkg.com/mermaid@10.6.1/dist/mermaid.min.js'
 
-# SEO and social
-author:
-  name: "AI Cohort July 2025"
-  email: "noreply@autodevhub.com"
-
+# SEO settings
+author: "AI Cohort July 2025"
+twitter:
+  username: autodevhub
 social:
-  - name: "GitHub"
-    url: "https://github.com/ai-cohort-july-2025/AI-Cohort-July-2025"
+  name: AutoDevHub
+  links:
+    - https://github.com/ai-cohort-july-2025/AI-Cohort-July-2025
 
-# GitHub Pages specific settings
-github_username: ai-cohort-july-2025
-repository: AI-Cohort-July-2025
-
-# Exclude from processing
+# Build settings
+theme: minima
 exclude:
-  - Gemfile
-  - Gemfile.lock
-  - node_modules
-  - vendor/bundle/
-  - vendor/cache/
-  - vendor/gems/
-  - vendor/ruby/
+  - node_modules/
   - backend/
   - frontend/node_modules/
-  - "*.pyc"
-  - __pycache__/
-  - .pytest_cache/
-  - .coverage
-  - docker-compose.yml
-  - Dockerfile
   - "*.log"
+  - Gemfile
+  - Gemfile.lock
+  - Dockerfile
+  - docker-compose.yml
+  - coordination/
+  - memory/
+  - old.CLAUDE.md
 
-# Include files
+# Include documentation files
 include:
-  - _pages
-  - assets
+  - docs/
+  - README.md
 
-# Sass settings
-sass:
-  sass_dir: _sass
-  style: compressed
+# Collections
+collections:
+  adr:
+    output: true
+    permalink: /docs/adr/:name/
+  architecture:
+    output: true
+    permalink: /docs/architecture/:name/
 
-# Timezone
-timezone: America/New_York
-
-# Pagination
-paginate: 10
-paginate_path: "/page:num/"
-
-# Search settings
-search_enabled: true
-
-# Comments (GitHub Issues based)
-comments:
-  provider: "github"
-  github:
-    repository: "ai-cohort-july-2025/AI-Cohort-July-2025"
-
-# Analytics (optional)
-google_analytics: # Add GA tracking ID if needed
-
-# Performance optimizations
-compress_html:
-  clippings: all
-  comments: all
-  endings: all
-  ignore:
-    envs: ['development']
+# Default settings
+defaults:
+  - scope:
+      path: "docs"
+    values:
+      layout: "page"
+  - scope:
+      path: "docs/adr"
+    values:
+      layout: "page"
+      parent: "Architecture Decision Records"
+  - scope:
+      path: "docs/architecture"
+    values:
+      layout: "page"
+      parent: "Architecture"

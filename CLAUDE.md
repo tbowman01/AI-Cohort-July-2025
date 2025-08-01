@@ -54,32 +54,33 @@ Task("Review code", "...", "reviewer")
 ```js
 [BatchTool]:
   mcp__claude-flow__swarm_init { topology: "hierarchical", maxAgents: 8 }
-  mcp__claude-flow__agent_spawn { type: "architect" }
-  mcp__claude-flow__agent_spawn { type: "coder" }
-  mcp__claude-flow__agent_spawn { type: "tester" }
-  TodoWrite { todos: [multiple todos] }
-  Bash("mkdir -p app/{src,tests,docs}")
-  Write("app/package.json")
-```
+    mcp__claude-flow__agent_spawn { type: "architect" }
+      mcp__claude-flow__agent_spawn { type: "coder" }
+        mcp__claude-flow__agent_spawn { type: "tester" }
+          TodoWrite { todos: [multiple todos] }
+            Bash("mkdir -p app/{src,tests,docs}")
+              Write("app/package.json")
+              ```
 
-## Coordination Protocol (Every Agent)
-- Pre-task: `npx claude-flow@alpha hooks pre-task`
-- Post-edit: `npx claude-flow@alpha hooks post-edit`
-- Notify: `npx claude-flow@alpha hooks notify`
-- Post-task: `npx claude-flow@alpha hooks post-task`
+              ## Coordination Protocol (Every Agent)
+              - Pre-task: `npx claude-flow@alpha hooks pre-task`
+              - Post-edit: `npx claude-flow@alpha hooks post-edit`
+              - Notify: `npx claude-flow@alpha hooks notify`
+              - Post-task: `npx claude-flow@alpha hooks post-task`
 
-## Visual Progress Format
-```
-📊 Progress
-├── Total: X
-├── ✅ Completed: X
-├── 🔄 In Progress: X
-├── ⭕ Todo: X
-└── ❌ Blocked: X
-```
+              ## Visual Progress Format
+              ```
+              📊 Progress
+              ├── Total: X
+              ├── ✅ Completed: X
+              ├── 🔄 In Progress: X
+              ├── ⭕ Todo: X
+              └── ❌ Blocked: X
+              ```
 
-## Links
-- [SPARC Guide](https://github.com/ruvnet/claude-code-flow/docs/sparc.md)
-- [Batchtools Docs](https://github.com/ruvnet/claude-code-flow/docs/batchtools.md)
-- [Claude Flow](https://github.com/ruvnet/claude-flow)
+              ## Links
+              - [SPARC Guide](https://github.com/ruvnet/claude-code-flow/docs/sparc.md)
+              - [Batchtools Docs](https://github.com/ruvnet/claude-code-flow/docs/batchtools.md)
+              - [Claude Flow](https://github.com/ruvnet/claude-flow)
 
+              
