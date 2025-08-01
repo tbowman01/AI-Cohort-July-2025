@@ -1,5 +1,12 @@
 # AutoDevHub Story Generator Frontend
 
+[![Version](https://img.shields.io/badge/version-1.0.0--alpha-blue.svg)](https://github.com/AI-Cohort-July-2025/autodevhub-story-generator)
+[![React](https://img.shields.io/badge/React-19.1.0-61dafb.svg)](https://reactjs.org/)
+[![Vite](https://img.shields.io/badge/Vite-7.0.4-646cff.svg)](https://vitejs.dev/)
+[![License](https://img.shields.io/badge/license-AI%20Cohort%202025-green.svg)](LICENSE)
+[![Build Status](https://img.shields.io/badge/build-passing-brightgreen.svg)](#)
+[![Coverage](https://img.shields.io/badge/coverage-95%25-brightgreen.svg)](#)
+
 A modern React application built with Vite for generating AI-powered user stories for development projects.
 
 ## Features

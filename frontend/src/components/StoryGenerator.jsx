@@ -28,19 +28,19 @@ const StoryGenerator = () => {
 
     try {
       const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000'
-      const apiEndpoint = import.meta.env.VITE_API_ENDPOINT || '/api/v1/stories/generate'
+      const apiEndpoint = import.meta.env.VITE_API_ENDPOINT || '/api/v1/stories/generate-story'
       
       // Transform frontend form data to match backend API schema
       const apiPayload = {
-        feature_description: [
+        description: [
           formData.projectDescription,
           formData.targetAudience ? `Target Audience: ${formData.targetAudience}` : '',
           formData.keyFeatures ? `Key Features: ${formData.keyFeatures}` : '',
           formData.technicalRequirements ? `Technical Requirements: ${formData.technicalRequirements}` : ''
         ].filter(Boolean).join('\n\n'),
-        story_type: 'story',
-        priority: 'medium',
-        project_id: formData.projectName
+        project_context: `Project: ${formData.projectName}`,
+        story_type: 'user_story',
+        complexity: 'medium'
       }
       
       const response = await fetch(`${apiBaseUrl}${apiEndpoint}`, {
@@ -184,7 +184,7 @@ const StoryGenerator = () => {
                 <div className="story-content">
                   <h4>User Story</h4>
                   <div className="story-text">
-                    <pre>{story.gherkin_content || story.user_story || story.story || 'No story content available'}</pre>
+                    <pre>{story.gherkin || story.user_story || story.story || 'No story content available'}</pre>
                   </div>
                   
                   {story.acceptance_criteria && story.acceptance_criteria.length > 0 && (
@@ -198,21 +198,31 @@ const StoryGenerator = () => {
                     </>
                   )}
                   
-                  {story.estimated_hours && (
+                  {story.estimated_points && (
                     <div className="story-meta">
-                      <h4>Estimated Hours</h4>
-                      <p><strong>{story.estimated_hours}</strong> hours</p>
+                      <h4>Estimated Story Points</h4>
+                      <p><strong>{story.estimated_points}</strong> points</p>
                     </div>
                   )}
 
-                  {story.quality_metrics && (
-                    <div className="quality-metrics">
-                      <h4>Quality Metrics</h4>
-                      <p>Quality Score: <strong>{(story.quality_metrics.quality_score * 100).toFixed(0)}%</strong></p>
-                      <p>Valid Gherkin: <strong>{story.quality_metrics.is_valid_gherkin ? 'Yes' : 'No'}</strong></p>
-                      <p>Scenarios: <strong>{story.quality_metrics.scenario_count}</strong></p>
+                  {story.tags && story.tags.length > 0 && (
+                    <div className="story-tags">
+                      <h4>Tags</h4>
+                      <div className="tags-list">
+                        {story.tags.map((tag, idx) => (
+                          <span key={idx} className="tag">{tag}</span>
+                        ))}
+                      </div>
                     </div>
                   )}
+
+                  <div className="story-meta">
+                    <h4>Story Details</h4>
+                    <p><strong>Type:</strong> {story.story_type}</p>
+                    <p><strong>Complexity:</strong> {story.complexity}</p>
+                    <p><strong>Status:</strong> {story.status}</p>
+                    <p><strong>Created:</strong> {new Date(story.created_at).toLocaleString()}</p>
+                  </div>
                 </div>
               </div>
             ))}
