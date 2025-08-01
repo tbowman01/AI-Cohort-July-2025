@@ -48,7 +48,7 @@ class StoryGenerationRequest(BaseModel):
         ...,
         min_length=10,
         max_length=2000,
-        description=(\n            "Natural language description of the feature to generate a story for"\n        ),
+        description="Natural language description of the feature to generate a story for",
         examples=[
             "User authentication with social login",
             "File upload functionality for documents",

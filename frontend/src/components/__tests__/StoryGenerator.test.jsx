@@ -669,10 +669,8 @@ describe('StoryGenerator Component', () => {
     })
 
     it('navigates to next page when Next button is clicked', async () => {
-      let currentPage = 1
       global.fetch = vi.fn().mockImplementation((url) => {
         if (url.includes('page=2')) {
-          currentPage = 2
           return Promise.resolve({
             ok: true,
             status: 200,
