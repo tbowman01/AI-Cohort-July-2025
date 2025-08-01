@@ -50,6 +50,51 @@ else
     exit 1
 fi
 
+# Virtual environment setup prompt
+echo -e "\n${BLUE}🐍 Python Virtual Environment Setup${NC}"
+read -p "Do you want to create and use a Python virtual environment? (y/n): " -r
+echo
+
+if [[ $REPLY =~ ^[Yy]$ ]]; then
+    print_info "Setting up Python virtual environment..."
+    
+    # Create virtual environment if it doesn't exist
+    if [ ! -d "venv" ]; then
+        if python3 -m venv venv; then
+            print_status "Virtual environment created successfully"
+        else
+            print_error "Failed to create virtual environment"
+            exit 1
+        fi
+    else
+        print_warning "Virtual environment already exists"
+    fi
+    
+    # Activate virtual environment
+    print_info "Activating virtual environment..."
+    source venv/bin/activate
+    
+    # Upgrade pip in virtual environment
+    print_info "Upgrading pip in virtual environment..."
+    pip install --upgrade pip
+    
+    print_status "Virtual environment activated"
+    print_info "Virtual environment is located at: $(pwd)/venv"
+    print_warning "Remember to activate it in future sessions with: source venv/bin/activate"
+else
+    print_warning "Skipping virtual environment setup"
+    print_info "Continuing with system Python installation..."
+    
+    # Ask if user wants to exit or continue without venv
+    read -p "Continue without virtual environment? (y/n): " -r
+    echo
+    
+    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+        print_info "Exiting setup. Run the script again when ready to proceed."
+        exit 0
+    fi
+fi
+
 # Create environment file if it doesn't exist
 if [ ! -f .env ]; then
     print_info "Creating .env file from template..."
@@ -126,11 +171,22 @@ fi
 
 echo -e "\n${GREEN}🎉 AutoDevHub development environment setup complete!${NC}"
 echo -e "\n${BLUE}Next steps:${NC}"
-echo "1. Review and update .env file with your configuration"
-echo "2. Start backend development server: uvicorn backend.app.main:app --reload"
-echo "3. Start frontend development server: npm run dev"
-echo "4. Run tests: pytest (backend) / npm test (frontend)"
-echo "5. Check code quality: flake8 . && npm run lint"
+if [ -d "venv" ] && [[ "$VIRTUAL_ENV" == *"venv"* ]]; then
+    echo "1. Virtual environment is active and ready to use"
+    echo "2. Review and update .env file with your configuration"
+    echo "3. Start backend development server: uvicorn backend.app.main:app --reload"
+    echo "4. Start frontend development server: npm run dev"
+    echo "5. Run tests: pytest (backend) / npm test (frontend)"
+    echo "6. Check code quality: flake8 . && npm run lint"
+    echo -e "\n${YELLOW}Note: To reactivate virtual environment in future sessions:${NC}"
+    echo "source venv/bin/activate"
+else
+    echo "1. Review and update .env file with your configuration"
+    echo "2. Start backend development server: uvicorn backend.app.main:app --reload"
+    echo "3. Start frontend development server: npm run dev"
+    echo "4. Run tests: pytest (backend) / npm test (frontend)"
+    echo "5. Check code quality: flake8 . && npm run lint"
+fi
 
 echo -e "\n${BLUE}Available scripts:${NC}"
 echo "• ./dev-setup.sh - This setup script"
