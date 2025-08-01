@@ -28,7 +28,7 @@ const StoryGenerator = () => {
 
     try {
       const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000'
-      const apiEndpoint = import.meta.env.VITE_API_ENDPOINT || '/api/v1/stories/generate-story'
+      const apiEndpoint = import.meta.env.VITE_API_ENDPOINT || '/api/v1/stories/generate'
       
       // Transform frontend form data to match backend API schema
       const apiPayload = {
