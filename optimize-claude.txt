@@ -1,0 +1,16 @@
+● I've optimized the CLAUDE.md file for your AutoDevHub project. The key improvements include:
+
+  1. Project-Specific Context: Added clear project description and tech stack (FastAPI, React, Docker)
+  2. Specialized Agent Roles: Replaced generic roles with project-specific ones:
+    - backend-dev for FastAPI development
+    - frontend-dev for React/TypeScript work
+    - security-analyst for defensive security
+    - devops-engineer for CI/CD and Docker
+  3. Quick Commands: Added frequently used commands for both backend and frontend development
+  4. Task Templates: Created specific workflows for common tasks like API endpoint creation and React component development
+  5. Security Guidelines: Added project-specific security practices including JWT auth, Pydantic validation, and SQLAlchemy ORM usage
+  6. Code Patterns: Included actual code examples following your project's structure
+  7. Quality Checks: Defined specific commands to run before completing tasks
+  8. Memory Keys: Standardized keys for storing insights across sessions
+
+  The configuration is now tailored to AutoDevHub's architecture and development workflow, making it more efficient for AI assistance with your specific project needs.
