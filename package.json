@@ -40,6 +40,10 @@
     "url": "https://github.com/yourusername/autodevhub/issues"
   },
   "homepage": "https://github.com/yourusername/autodevhub#readme",
+  "workspaces": [
+    "frontend",
+    "backend"
+  ],
   "devDependencies": {
     "concurrently": "^8.2.2"
   },
@@ -47,9 +51,5 @@
     "node": ">=18.0.0",
     "npm": ">=9.0.0",
     "python": ">=3.9.0"
-  },
-  "dependencies": {
-    "claude-flow": "^2.0.0-alpha.82",
-    "init": "^0.1.2"
   }
 }
