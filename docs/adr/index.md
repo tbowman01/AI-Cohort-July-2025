@@ -12,39 +12,39 @@ This section contains all architectural decisions made during the development of
 
 ### Core Technology Decisions
 
-#### [ADR-001: Backend Framework Selection](ADR-001-backend-framework-selection/)
+#### [ADR-001: Backend Framework Selection]({{ '/docs/adr/ADR-001-backend-framework-selection.html' | relative_url }})
 **Status**: ✅ Accepted  
 **Decision**: FastAPI with Python 3.11  
 **Key Factors**: Performance, type safety, automatic API documentation, async support
 
-#### [ADR-002: Frontend Framework Selection](ADR-002-frontend-framework-selection/)
+#### [ADR-002: Frontend Framework Selection]({{ '/docs/adr/ADR-002-frontend-framework-selection.html' | relative_url }})
 **Status**: ✅ Accepted  
 **Decision**: React 18 with TypeScript and Vite  
 **Key Factors**: Component ecosystem, TypeScript support, development experience, performance
 
-#### [ADR-003: Database Selection](ADR-003-database-selection/)
+#### [ADR-003: Database Selection]({{ '/docs/adr/ADR-003-database-selection.html' | relative_url }})
 **Status**: ✅ Accepted  
 **Decision**: SQLite (development) / PostgreSQL (production)  
 **Key Factors**: Development simplicity, production scalability, ACID compliance
 
 ### Integration & Platform Decisions
 
-#### [ADR-004: AI Integration Platform](ADR-004-ai-integration-platform/)
+#### [ADR-004: AI Integration Platform]({{ '/docs/adr/ADR-004-ai-integration-platform.html' | relative_url }})
 **Status**: ✅ Accepted  
 **Decision**: Claude AI (Anthropic)  
 **Key Factors**: Advanced reasoning, safety features, API reliability, cost effectiveness
 
-#### [ADR-005: CI/CD Platform Selection](ADR-005-cicd-platform-selection/)
+#### [ADR-005: CI/CD Platform Selection]({{ '/docs/adr/ADR-005-cicd-platform-selection.html' | relative_url }})
 **Status**: ✅ Accepted  
 **Decision**: GitHub Actions  
 **Key Factors**: Native GitHub integration, cost effectiveness, flexibility, extensive marketplace
 
-#### [ADR-006: Documentation Hosting](ADR-006-documentation-hosting/)
+#### [ADR-006: Documentation Hosting]({{ '/docs/adr/ADR-006-documentation-hosting.html' | relative_url }})
 **Status**: ✅ Accepted  
 **Decision**: GitHub Pages with Jekyll  
 **Key Factors**: Zero cost, automatic deployment, Markdown support, version control integration
 
-#### [ADR-007: Development Environment](ADR-007-development-environment/)
+#### [ADR-007: Development Environment]({{ '/docs/adr/ADR-007-development-environment.html' | relative_url }})
 **Status**: ✅ Accepted  
 **Decision**: Docker with Dev Containers  
 **Key Factors**: Environment consistency, onboarding simplicity, reproducibility
@@ -140,9 +140,9 @@ graph LR
 
 ## 🔗 Related Documentation
 
-- **[System Architecture](/docs/architecture/)**: Implementation of ADR decisions
-- **[Development Guide](/docs/development/)**: Practical application of technical decisions
-- **[API Documentation](/docs/architecture/api-specification/)**: FastAPI implementation details
+- **[System Architecture]({{ '/docs/architecture/' | relative_url }})**: Implementation of ADR decisions
+- **[Development Guide]({{ '/docs/development/' | relative_url }})**: Practical application of technical decisions
+- **[API Documentation]({{ '/docs/architecture/api-specification.html' | relative_url }})**: FastAPI implementation details
 
 ## 📝 Creating New ADRs
 

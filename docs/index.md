@@ -10,37 +10,37 @@ Welcome to the comprehensive documentation center for AutoDevHub, your AI-powere
 
 ## 📚 Documentation Sections
 
-### 🏗️ [Architecture](/docs/architecture/)
+### 🏗️ [Architecture]({{ '/docs/architecture/' | relative_url }})
 Complete system architecture documentation with visual diagrams:
-- **System Overview**: High-level architecture and component relationships
-- **API Specification**: RESTful API endpoints and data models
-- **Database Schema**: Data structures and entity relationships
-- **Deployment Architecture**: Infrastructure and scaling strategies
+- **[System Overview]({{ '/docs/architecture/system-overview.html' | relative_url }})**: High-level architecture and component relationships
+- **[API Specification]({{ '/docs/architecture/api-specification.html' | relative_url }})**: RESTful API endpoints and data models
+- **[Database Schema]({{ '/docs/architecture/database-schema.html' | relative_url }})**: Data structures and entity relationships
+- **[Deployment Architecture]({{ '/docs/architecture/deployment-architecture.html' | relative_url }})**: Infrastructure and scaling strategies
 
-### 📋 [Architecture Decision Records (ADRs)](/docs/adr/)
+### 📋 [Architecture Decision Records (ADRs)]({{ '/docs/adr/' | relative_url }})
 Comprehensive collection of architectural decisions:
-- **ADR-001**: Backend Framework Selection (FastAPI)
-- **ADR-002**: Frontend Framework Selection (React + TypeScript)
-- **ADR-003**: Database Selection (SQLite for development)
-- **ADR-004**: AI Integration Platform (Claude AI)
-- **ADR-005**: CI/CD Platform Selection (GitHub Actions)
-- **ADR-006**: Documentation Hosting (GitHub Pages)
-- **ADR-007**: Development Environment (Docker + Dev Containers)
+- **[ADR-001]({{ '/docs/adr/ADR-001-backend-framework-selection.html' | relative_url }})**: Backend Framework Selection (FastAPI)
+- **[ADR-002]({{ '/docs/adr/ADR-002-frontend-framework-selection.html' | relative_url }})**: Frontend Framework Selection (React + TypeScript)
+- **[ADR-003]({{ '/docs/adr/ADR-003-database-selection.html' | relative_url }})**: Database Selection (SQLite for development)
+- **[ADR-004]({{ '/docs/adr/ADR-004-ai-integration-platform.html' | relative_url }})**: AI Integration Platform (Claude AI)
+- **[ADR-005]({{ '/docs/adr/ADR-005-cicd-platform-selection.html' | relative_url }})**: CI/CD Platform Selection (GitHub Actions)
+- **[ADR-006]({{ '/docs/adr/ADR-006-documentation-hosting.html' | relative_url }})**: Documentation Hosting (GitHub Pages)
+- **[ADR-007]({{ '/docs/adr/ADR-007-development-environment.html' | relative_url }})**: Development Environment (Docker + Dev Containers)
 
-### ⚙️ [Development Guide](/docs/development/)
+### ⚙️ [Development Guide]({{ '/docs/development/' | relative_url }})
 Complete development resources:
-- **Setup Guide**: Environment configuration and dependencies
-- **Deployment**: Production deployment procedures
-- **Contributing**: Code standards and contribution workflow
-- **Testing**: Testing strategies and quality assurance
+- **[Setup Guide]({{ '/docs/development/setup-guide.html' | relative_url }})**: Environment configuration and dependencies
+- **[Deployment]({{ '/docs/development/deployment.html' | relative_url }})**: Production deployment procedures
+- **[Contributing]({{ '/docs/development/contributing.html' | relative_url }})**: Code standards and contribution workflow
+- **[Monitoring]({{ '/docs/development/monitoring.html' | relative_url }})**: Testing strategies and quality assurance
 
-### 🎯 [Presentation Materials](/docs/presentation/)
+### 🎯 [Presentation Materials]({{ '/docs/presentation/' | relative_url }})
 Capstone project presentation resources:
-- **Project Slides**: Complete presentation deck
-- **Demo Script**: Step-by-step demonstration guide
+- **[Project Slides]({{ '/docs/presentation/slides.html' | relative_url }})**: Complete presentation deck
+- **[Demo Script]({{ '/docs/presentation/demo-script.html' | relative_url }})**: Step-by-step demonstration guide
 - **Business Value**: ROI analysis and impact metrics
 
-### 📞 [Contact & Support](/docs/contacts/)
+### 📞 [Contact & Support]({{ '/docs/contacts/' | relative_url }})
 Get help and connect with the development team:
 - **Support Channels**: GitHub issues, discussions, and community help
 - **Bug Reports**: Report issues and get assistance
@@ -53,37 +53,37 @@ Get help and connect with the development team:
   <div class="nav-section">
     <h3>🏁 Getting Started</h3>
     <ul>
-      <li><a href="/docs/development/setup-guide/">Quick Setup</a></li>
-      <li><a href="/#quick-start">Installation Guide</a></li>
-      <li><a href="/docs/architecture/system-overview/">System Overview</a></li>
+      <li><a href="{{ '/docs/development/setup-guide.html' | relative_url }}">Quick Setup</a></li>
+      <li><a href="{{ '/#quick-start' | relative_url }}">Installation Guide</a></li>
+      <li><a href="{{ '/docs/architecture/system-overview.html' | relative_url }}">System Overview</a></li>
     </ul>
   </div>
   
   <div class="nav-section">
     <h3>🔧 Developers</h3>
     <ul>
-      <li><a href="/docs/architecture/api-specification/">API Documentation</a></li>
-      <li><a href="/docs/development/contributing/">Contributing Guide</a></li>
-      <li><a href="/docs/architecture/database-schema/">Database Schema</a></li>
+      <li><a href="{{ '/docs/architecture/api-specification.html' | relative_url }}">API Documentation</a></li>
+      <li><a href="{{ '/docs/development/contributing.html' | relative_url }}">Contributing Guide</a></li>
+      <li><a href="{{ '/docs/architecture/database-schema.html' | relative_url }}">Database Schema</a></li>
     </ul>
   </div>
   
   <div class="nav-section">
     <h3>🚀 Operations</h3>
     <ul>
-      <li><a href="/docs/development/deployment/">Deployment Guide</a></li>
-      <li><a href="/docs/architecture/deployment-architecture.html">Infrastructure</a></li>
-      <li><a href="/docs/development/monitoring.html">Monitoring Setup</a></li>
+      <li><a href="{{ '/docs/development/deployment.html' | relative_url }}">Deployment Guide</a></li>
+      <li><a href="{{ '/docs/architecture/deployment-architecture.html' | relative_url }}">Infrastructure</a></li>
+      <li><a href="{{ '/docs/development/monitoring.html' | relative_url }}">Monitoring Setup</a></li>
     </ul>
   </div>
   
   <div class="nav-section">
     <h3>📊 Project Info</h3>
     <ul>
-      <li><a href="/docs/presentation/slides/">Presentation</a></li>
-      <li><a href="/docs/adr/">Decision Records</a></li>
-      <li><a href="/docs/contacts/">Contact & Support</a></li>
-      <li><a href="https://github.com/ai-cohort-july-2025/AI-Cohort-July-2025">GitHub Repository</a></li>
+      <li><a href="{{ '/docs/presentation/slides.html' | relative_url }}">Presentation</a></li>
+      <li><a href="{{ '/docs/adr/' | relative_url }}">Decision Records</a></li>
+      <li><a href="{{ '/docs/contacts/' | relative_url }}">Contact & Support</a></li>
+      <li><a href="https://github.com/tbowman01/AI-Cohort-July-2025">GitHub Repository</a></li>
     </ul>
   </div>
 </div>
@@ -115,16 +115,16 @@ Get help and connect with the development team:
 
 ## 🔗 External Resources
 
-- **[GitHub Repository](https://github.com/ai-cohort-july-2025/AI-Cohort-July-2025)**: Source code and issue tracking
+- **[GitHub Repository](https://github.com/tbowman01/AI-Cohort-July-2025)**: Source code and issue tracking
 - **[Live Application](http://localhost:3000)**: Development environment access
-- **[CI/CD Pipeline](https://github.com/ai-cohort-july-2025/AI-Cohort-July-2025/actions)**: Build and deployment status
+- **[CI/CD Pipeline](https://github.com/tbowman01/AI-Cohort-July-2025/actions)**: Build and deployment status
 
 ## 📞 Support
 
 Need help? Check these resources:
-- **Issues**: [GitHub Issues](https://github.com/ai-cohort-july-2025/AI-Cohort-July-2025/issues)
-- **Contributing**: [Contribution Guidelines](/docs/development/contributing/)
-- **Architecture Questions**: [ADR Collection](/docs/adr/)
+- **Issues**: [GitHub Issues](https://github.com/tbowman01/AI-Cohort-July-2025/issues)
+- **Contributing**: [Contribution Guidelines]({{ '/docs/development/contributing.html' | relative_url }})
+- **Architecture Questions**: [ADR Collection]({{ '/docs/adr/' | relative_url }})
 
 ---
 
